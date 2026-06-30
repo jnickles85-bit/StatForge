@@ -1,0 +1,7 @@
+## Interface: 11505
+## Title: StatForge
+## Notes: Character data export for the StatForge gear optimizer.
+## Author: StatForge
+## Version: 0.1.0
+
+Core.lua

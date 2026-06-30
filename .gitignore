@@ -1,0 +1,14 @@
+# WoW Addon Dev
+*.bak
+*.old
+*.zip
+*.rar
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
