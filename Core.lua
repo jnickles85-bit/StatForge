@@ -3,6 +3,10 @@
 
 local addonName = "StatForge"
 
+local function jsonEscape(s)
+  return tostring(s or ""):gsub('"', '\\"')
+end
+
 -- ---------------------------------------------------------------------------
 -- Item link parser: extracts id, bonusIds, upgradeId from itemString
 -- ---------------------------------------------------------------------------
@@ -23,7 +27,10 @@ local function ParseItemLink(itemLink)
       bonusIds[#bonusIds + 1] = tonumber(num) or 0
     end
   end
-  local quality = select(3, GetItemInfo(id)) or 0
+  local quality = 0
+  if id and id > 0 then
+    quality = select(3, GetItemInfo(id)) or 0
+  end
   return {
     itemId = id,
     itemLink = itemLink,
@@ -37,70 +44,79 @@ end
 -- Snapshot builder: character, equipped, bags, talents
 -- ---------------------------------------------------------------------------
 local function BuildSnapshot()
-  local name, realm = UnitName("player"), GetRealmName()
-  local _, class = UnitClass("player")
-  local level = UnitLevel("player")
-  local _, race = UnitRace("player")
+  local ok, snap = pcall(function()
+    local name, realm = UnitName("player"), GetRealmName()
+    local _, class = UnitClass("player")
+    local level = UnitLevel("player")
+    local _, race = UnitRace("player")
 
-  -- talents: 30-char binary
-  local talents = ""
-  for tab = 1, GetNumTalents() do
-    for i = 1, GetNumTalents(tab) do
-      talents = talents .. (select(5, GetTalentInfo(tab, i)) > 0 and "1" or "0")
-    end
-  end
-
-  -- equipped
-  local equipped = {}
-  for slot = 1, 19 do
-    local link = GetInventoryItemLink("player", slot)
-    if link then
-      equipped[#equipped + 1] = {
-        slot = slot,
-        itemId = ParseItemLink(link).itemId,
-        itemLink = link,
-        bonusIds = ParseItemLink(link).bonusIds,
-        upgradeId = ParseItemLink(link).upgradeId,
-      }
-    end
-  end
-
-  -- bags
-  local bags = {}
-  for bag = 0, 4 do
-    for slot = 1, GetContainerNumSlots(bag) do
-      local link = GetContainerItemLink(bag, slot)
-      if link then
-        bags[#bags + 1] = {
-          bag = bag,
-          slot = slot,
-          itemId = ParseItemLink(link).itemId,
-          itemLink = link,
-          bonusIds = ParseItemLink(link).bonusIds,
-          upgradeId = ParseItemLink(link).upgradeId,
-        }
+    -- talents: 30-char binary
+    local talents = ""
+    for tab = 1, GetNumTalents() do
+      for i = 1, GetNumTalents(tab) do
+        talents = talents .. (select(5, GetTalentInfo(tab, i)) > 0 and "1" or "0")
       end
     end
-  end
 
-  return {
-    meta = {
-      exportedAt = date("!%Y-%m-%dT%H:%M:%SZ"),
-      addonVersion = "0.1.0",
-      format = "StatForge-v1",
-    },
-    character = {
-      name = name,
-      realm = realm,
-      class = class,
-      level = level,
-      race = race,
-      talents = talents,
-    },
-    equipped = equipped,
-    bags = bags,
-    bank = {},
-  }
+    -- equipped
+    local equipped = {}
+    for slot = 1, 19 do
+      local link = GetInventoryItemLink("player", slot)
+      if link then
+        local parsed = ParseItemLink(link)
+        if parsed then
+          equipped[#equipped + 1] = {
+            slot = slot,
+            itemId = parsed.itemId,
+            itemLink = link,
+            bonusIds = parsed.bonusIds,
+            upgradeId = parsed.upgradeId,
+          }
+        end
+      end
+    end
+
+    -- bags
+    local bags = {}
+    for bag = 0, 4 do
+      for slot = 1, GetContainerNumSlots(bag) do
+        local link = GetContainerItemLink(bag, slot)
+        if link then
+          local parsed = ParseItemLink(link)
+          if parsed then
+            bags[#bags + 1] = {
+              bag = bag,
+              slot = slot,
+              itemId = parsed.itemId,
+              itemLink = link,
+              bonusIds = parsed.bonusIds,
+              upgradeId = parsed.upgradeId,
+            }
+          end
+        end
+      end
+    end
+
+    return {
+      meta = {
+        exportedAt = date("!%Y-%m-%dT%H:%M:%SZ"),
+        addonVersion = "0.1.0",
+        format = "StatForge-v1",
+      },
+      character = {
+        name = name,
+        realm = realm,
+        class = class,
+        level = level,
+        race = race,
+        talents = talents,
+      },
+      equipped = equipped,
+      bags = bags,
+      bank = {},
+    }
+  end)
+  if ok then return snap else return nil end
 end
 
 -- ---------------------------------------------------------------------------
@@ -161,23 +177,27 @@ local function ShowPanel()
 
   -- Build and set text
   local snap = BuildSnapshot()
+  if not snap then
+    print("StatForge: failed to build snapshot")
+    return
+  end
   local json = ""
   -- Simple JSON encoder without serialize()
   json = json .. "{\n"
   -- meta
   json = json .. '  "meta": {\n'
-  json = json .. ('    "exportedAt": "%s",\n'):format(snap.meta.exportedAt)
-  json = json .. ('    "addonVersion": "%s",\n'):format(snap.meta.addonVersion)
-  json = json .. ('    "format": "%s"\n'):format(snap.meta.format)
+  json = json .. ('    "exportedAt": "%s",\n'):format(jsonEscape(snap.meta.exportedAt))
+  json = json .. ('    "addonVersion": "%s",\n'):format(jsonEscape(snap.meta.addonVersion))
+  json = json .. ('    "format": "%s"\n'):format(jsonEscape(snap.meta.format))
   json = json .. "  },\n"
   -- character
   json = json .. '  "character": {\n'
-  json = json .. ('    "name": "%s",\n'):format(snap.character.name or "")
-  json = json .. ('    "realm": "%s",\n'):format(snap.character.realm or "")
-  json = json .. ('    "class": "%s",\n'):format(snap.character.class or "")
+  json = json .. ('    "name": "%s",\n'):format(jsonEscape(snap.character.name))
+  json = json .. ('    "realm": "%s",\n'):format(jsonEscape(snap.character.realm))
+  json = json .. ('    "class": "%s",\n'):format(jsonEscape(snap.character.class))
   json = json .. ('    "level": %s,\n'):format(tostring(snap.character.level or 0))
-  json = json .. ('    "race": "%s",\n'):format(snap.character.race or "")
-  json = json .. ('    "talents": "%s"\n'):format(snap.character.talents or "")
+  json = json .. ('    "race": "%s",\n'):format(jsonEscape(snap.character.race))
+  json = json .. ('    "talents": "%s"\n'):format(jsonEscape(snap.character.talents))
   json = json .. "  },\n"
   -- equipped
   json = json .. ('  "equipped": [\n')
@@ -185,7 +205,7 @@ local function ShowPanel()
     json = json .. '    {'
     json = json .. ('"slot": %d, '):format(item.slot)
     json = json .. ('"itemId": %d, '):format(item.itemId)
-    json = json .. ('"itemLink": "%s", '):format(item.itemLink:gsub('"', '\\"'))
+    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
     json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
     json = json .. '"bonusIds": ['
     local first = true
@@ -206,7 +226,7 @@ local function ShowPanel()
     json = json .. ('"bag": %d, '):format(item.bag)
     json = json .. ('"slot": %d, '):format(item.slot)
     json = json .. ('"itemId": %d, '):format(item.itemId)
-    json = json .. ('"itemLink": "%s", '):format(item.itemLink:gsub('"', '\\"'))
+    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
     json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
     json = json .. '"bonusIds": ['
     local first = true
