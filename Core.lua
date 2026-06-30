@@ -50,11 +50,16 @@ local function BuildSnapshot()
     local level = UnitLevel("player")
     local _, race = UnitRace("player")
 
-    -- talents: 30-char binary
+    -- talents: binary string (1/0 per talent point spent)
     local talents = ""
-    for tab = 1, GetNumTalents() do
-      for i = 1, GetNumTalents(tab) do
-        talents = talents .. (select(5, GetTalentInfo(tab, i)) > 0 and "1" or "0")
+    local numTabs = GetNumTalentTabs() or 3
+    for tab = 1, numTabs do
+      local numTalents = GetNumTalents(tab) or 0
+      for i = 1, numTalents do
+        local ok2, rank = pcall(function()
+          return select(5, GetTalentInfo(tab, i))
+        end)
+        talents = talents .. ((ok2 and rank and rank > 0) and "1" or "0")
       end
     end
 
@@ -116,7 +121,10 @@ local function BuildSnapshot()
       bank = {},
     }
   end)
-  if ok then return snap else return nil end
+  if ok then return snap else
+    print("|cffff0000StatForge:|r " .. tostring(snap))
+    return nil
+  end
 end
 
 -- ---------------------------------------------------------------------------
@@ -175,10 +183,13 @@ local function ShowPanel()
   scroll:SetSize(672, 425)
   scroll:SetScrollChild(eb)
 
+  -- Close button (created early so panel is always closeable)
+  local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
+  close:SetPoint("TOPRIGHT", -6, -6)
+
   -- Build and set text
   local snap = BuildSnapshot()
   if not snap then
-    print("StatForge: failed to build snapshot")
     return
   end
   local json = ""
@@ -249,10 +260,6 @@ local function ShowPanel()
   -- Focus the box and select all so Ctrl+C works immediately
   eb:HighlightText(0, json:len())
   eb:SetFocus()
-
-  -- Close button
-  local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
-  close:SetPoint("TOPRIGHT", -6, -6)
 
   panel:Show()
 end
