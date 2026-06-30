@@ -84,8 +84,8 @@ local function BuildSnapshot()
     -- bags
     local bags = {}
     for bag = 0, 4 do
-      for slot = 1, GetContainerNumSlots(bag) do
-        local link = GetContainerItemLink(bag, slot)
+      for slot = 1, C_Container.GetContainerNumSlots(bag) do
+        local link = C_Container.GetContainerItemLink(bag, slot)
         if link then
           local parsed = ParseItemLink(link)
           if parsed then
