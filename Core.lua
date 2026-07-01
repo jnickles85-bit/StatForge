@@ -4,8 +4,14 @@
 local addonName = "StatForge"
 
 local function jsonEscape(s)
-  return tostring(s or ""):gsub('"', '\\"')
+  return tostring(s or "")
+    :gsub("\\", "\\\\")
+    :gsub('"', '\\"')
+    :gsub("\n", "\\n")
+    :gsub("\t", "\\t")
 end
+
+local DEBUG = false
 
 -- ---------------------------------------------------------------------------
 -- Item link parser: extracts id, bonusIds, upgradeId from itemString
@@ -26,13 +32,22 @@ local function ParseItemLink(itemLink)
     parts[#parts + 1] = part
   end
   local id = tonumber(parts[2]) or 0
-  local bonusStr = parts[15] or ""
-  local upgradeId = tonumber(parts[16]) or 0
+  -- Classic Era 1.15.5 itemString:
+  --   parts[13] = numBonusIDs (count of subsequent bonus ID fields)
+  --   bonus IDs follow immediately as individual colon-separated fields
   local bonusIds = {}
-  if bonusStr ~= "" then
-    for num in bonusStr:gmatch("[^,]+") do
-      bonusIds[#bonusIds + 1] = tonumber(num) or 0
+  local upgradeId = 0
+  local numBonus = tonumber(parts[13]) or 0
+  if numBonus > 0 and #parts >= 13 + numBonus then
+    for i = 1, numBonus do
+      local val = tonumber(parts[13 + i]) or 0
+      bonusIds[#bonusIds + 1] = val
     end
+    upgradeId = tonumber(parts[14 + numBonus]) or 0
+  end
+  if DEBUG then
+    print("StatForge debug raw itemString: " .. itemString)
+    print("StatForge debug parts count: " .. #parts .. ", numBonusIDs: " .. numBonus)
   end
   local quality = 0
   if id and id > 0 then
@@ -85,10 +100,10 @@ local function BuildSnapshot()
             upgradeId = parsed.upgradeId,
           }
         else
-          print("StatForge debug: ParseItemLink returned nil for equipped slot " .. slot .. " link = " .. tostring(link))
+          if DEBUG then print("StatForge debug: ParseItemLink returned nil for equipped slot " .. slot .. " link = " .. tostring(link)) end
         end
       else
-        print("StatForge debug: equipped slot " .. slot .. " returned nil link")
+        if DEBUG then print("StatForge debug: equipped slot " .. slot .. " returned nil link") end
       end
     end
 
@@ -96,7 +111,7 @@ local function BuildSnapshot()
     local bags = {}
     for bag = 0, 4 do
       local numSlots = GetContainerNumSlotsCompat(bag) or 0
-      print("StatForge debug: bag " .. bag .. " has " .. numSlots .. " slots")
+      if DEBUG then print("StatForge debug: bag " .. bag .. " has " .. numSlots .. " slots") end
       for slot = 1, numSlots do
         local link = GetContainerItemLinkCompat(bag, slot)
         if link then
@@ -111,10 +126,10 @@ local function BuildSnapshot()
               upgradeId = parsed.upgradeId,
             }
           else
-            print("StatForge debug: ParseItemLink returned nil for bag " .. bag .. " slot " .. slot .. " link = " .. tostring(link))
+            if DEBUG then print("StatForge debug: ParseItemLink returned nil for bag " .. bag .. " slot " .. slot .. " link = " .. tostring(link)) end
           end
         else
-          print("StatForge debug: bag " .. bag .. " slot " .. slot .. " returned nil link")
+          if DEBUG then print("StatForge debug: bag " .. bag .. " slot " .. slot .. " returned nil link") end
         end
       end
     end
@@ -178,11 +193,16 @@ local function ShowPanel()
   title:SetPoint("TOP", 0, -12)
   title:SetText("|cff33ff99StatForge|r Export")
 
+  -- Scroll frame wrapper (must exist before EditBox)
+  local scroll = CreateFrame("ScrollFrame", "StatForgeESF", panel, "UIPanelScrollFrameTemplate")
+  scroll:SetPoint("TOPLEFT", 6, -30)
+  scroll:SetSize(672, 425)
+
   -- Edit box for selectable JSON
-  local eb = CreateFrame("EditBox", nil, panel)
+  local eb = CreateFrame("EditBox", nil, scroll)
   eb:SetMultiLine(true)
-  eb:SetSize(660, 420)
-  eb:SetPoint("TOP", 0, -35)
+  eb:SetPoint("TOPLEFT", scroll, "TOPLEFT", 8, -8)
+  eb:SetPoint("BOTTOMRIGHT", scroll, "BOTTOMRIGHT", -8, 8)
   eb:SetMaxLetters(0)
   eb:SetTextInsets(8, 8, 8, 8)
   eb:SetAutoFocus(false)
@@ -195,10 +215,6 @@ local function ShowPanel()
     eb:ClearFocus()
   end)
 
-  -- Scroll frame wrapper
-  local scroll = CreateFrame("ScrollFrame", "StatForgeESF", panel, "UIPanelScrollFrameTemplate")
-  scroll:SetPoint("TOPLEFT", 6, -30)
-  scroll:SetSize(672, 425)
   scroll:SetScrollChild(eb)
 
   -- Close button (created early so panel is always closeable)
@@ -208,6 +224,8 @@ local function ShowPanel()
   -- Build and set text
   local snap = BuildSnapshot()
   if not snap then
+    panel:Hide()
+    panel = nil
     return
   end
   local json = ""
