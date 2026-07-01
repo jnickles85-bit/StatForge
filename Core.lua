@@ -10,9 +10,16 @@ end
 -- ---------------------------------------------------------------------------
 -- Item link parser: extracts id, bonusIds, upgradeId from itemString
 -- ---------------------------------------------------------------------------
+-- Compatibility wrappers for Classic Era bag APIs (some builds lack C_Container)
+local GetContainerNumSlotsCompat = C_Container and C_Container.GetContainerNumSlots
+  or GetContainerNumSlots
+local GetContainerItemLinkCompat = C_Container and C_Container.GetContainerItemLink
+  or GetContainerItemLink
+
 local function ParseItemLink(itemLink)
   if not itemLink then return nil end
-  local itemString = itemLink:match("^|H(.+)|h")
+  -- Item links may be preceded by color codes; remove ^ anchor, use non-greedy
+  local itemString = itemLink:match("|H(.-)|h")
   if not itemString then return nil end
   local parts = {}
   for part in itemString:gmatch("[^:]+") do
@@ -77,15 +84,21 @@ local function BuildSnapshot()
             bonusIds = parsed.bonusIds,
             upgradeId = parsed.upgradeId,
           }
+        else
+          print("StatForge debug: ParseItemLink returned nil for equipped slot " .. slot .. " link = " .. tostring(link))
         end
+      else
+        print("StatForge debug: equipped slot " .. slot .. " returned nil link")
       end
     end
 
     -- bags
     local bags = {}
     for bag = 0, 4 do
-      for slot = 1, C_Container.GetContainerNumSlots(bag) do
-        local link = C_Container.GetContainerItemLink(bag, slot)
+      local numSlots = GetContainerNumSlotsCompat(bag) or 0
+      print("StatForge debug: bag " .. bag .. " has " .. numSlots .. " slots")
+      for slot = 1, numSlots do
+        local link = GetContainerItemLinkCompat(bag, slot)
         if link then
           local parsed = ParseItemLink(link)
           if parsed then
@@ -97,7 +110,11 @@ local function BuildSnapshot()
               bonusIds = parsed.bonusIds,
               upgradeId = parsed.upgradeId,
             }
+          else
+            print("StatForge debug: ParseItemLink returned nil for bag " .. bag .. " slot " .. slot .. " link = " .. tostring(link))
           end
+        else
+          print("StatForge debug: bag " .. bag .. " slot " .. slot .. " returned nil link")
         end
       end
     end
