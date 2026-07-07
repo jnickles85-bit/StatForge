@@ -134,6 +134,32 @@ local function BuildSnapshot()
       end
     end
 
+    -- bank: container -1 holds the 28 fixed bank slots; bags 5-11 are bank bags
+    local bank = {}
+    local bankBags = { -1, 5, 6, 7, 8, 9, 10, 11 }
+    for _, bag in ipairs(bankBags) do
+      local numSlots = GetContainerNumSlotsCompat(bag) or 0
+      if DEBUG then print("StatForge debug: bank container " .. bag .. " has " .. numSlots .. " slots") end
+      for slot = 1, numSlots do
+        local link = GetContainerItemLinkCompat(bag, slot)
+        if link then
+          local parsed = ParseItemLink(link)
+          if parsed then
+            bank[#bank + 1] = {
+              bag = bag,
+              slot = slot,
+              itemId = parsed.itemId,
+              itemLink = link,
+              bonusIds = parsed.bonusIds,
+              upgradeId = parsed.upgradeId,
+            }
+          else
+            if DEBUG then print("StatForge debug: ParseItemLink returned nil for bank container " .. bag .. " slot " .. slot .. " link = " .. tostring(link)) end
+          end
+        end
+      end
+    end
+
     return {
       meta = {
         exportedAt = date("!%Y-%m-%dT%H:%M:%SZ"),
@@ -287,8 +313,27 @@ local function ShowPanel()
     json = json .. "\n"
   end
   json = json .. "  ],\n"
-  -- bank (empty)
-  json = json .. '  "bank": []\n'
+  -- bank
+  json = json .. ('  "bank": [\n')
+  for i, item in ipairs(snap.bank) do
+    json = json .. '    {'
+    json = json .. ('"bag": %d, '):format(item.bag)
+    json = json .. ('"slot": %d, '):format(item.slot)
+    json = json .. ('"itemId": %d, '):format(item.itemId)
+    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
+    json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
+    json = json .. '"bonusIds": ['
+    local first = true
+    for _, bid in ipairs(item.bonusIds) do
+      if not first then json = json .. ", " end
+      json = json .. tostring(bid)
+      first = false
+    end
+    json = json .. "]}"
+    if i < #snap.bank then json = json .. "," end
+    json = json .. "\n"
+  end
+  json = json .. "  ]\n"
   json = json .. "}\n"
 
   eb:SetText(json)
