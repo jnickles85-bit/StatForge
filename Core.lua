@@ -1,69 +1,104 @@
---- StatForge: /statforge opens a copyable export panel.
---- No SavedVariables — no file writes. In-game only, ToS-safe.
+--- StatForge: /statforge (or /sf) opens a copyable export panel.
+--- Bank contents are cached to SavedVariables (StatForgeDB) whenever you
+--- visit the bank, so exports include bank items even away from the banker.
 
 local addonName = "StatForge"
+local ADDON_VERSION = "0.2.0"
 
 local function jsonEscape(s)
   return tostring(s or "")
     :gsub("\\", "\\\\")
     :gsub('"', '\\"')
+    :gsub("\r", "\\r")
     :gsub("\n", "\\n")
     :gsub("\t", "\\t")
 end
 
-local DEBUG = false
-
--- ---------------------------------------------------------------------------
--- Item link parser: extracts id, bonusIds, upgradeId from itemString
 -- ---------------------------------------------------------------------------
 -- Compatibility wrappers for Classic Era bag APIs (some builds lack C_Container)
+-- ---------------------------------------------------------------------------
 local GetContainerNumSlotsCompat = C_Container and C_Container.GetContainerNumSlots
   or GetContainerNumSlots
 local GetContainerItemLinkCompat = C_Container and C_Container.GetContainerItemLink
   or GetContainerItemLink
 
-local function ParseItemLink(itemLink)
-  if not itemLink then return nil end
-  -- Item links may be preceded by color codes; remove ^ anchor, use non-greedy
-  local itemString = itemLink:match("|H(.-)|h")
-  if not itemString then return nil end
-  local parts = {}
-  for part in itemString:gmatch("[^:]+") do
-    parts[#parts + 1] = part
-  end
-  local id = tonumber(parts[2]) or 0
-  -- Classic Era 1.15.5 itemString:
-  --   parts[13] = numBonusIDs (count of subsequent bonus ID fields)
-  --   bonus IDs follow immediately as individual colon-separated fields
-  local bonusIds = {}
-  local upgradeId = 0
-  local numBonus = tonumber(parts[13]) or 0
-  if numBonus > 0 and #parts >= 13 + numBonus then
-    for i = 1, numBonus do
-      local val = tonumber(parts[13 + i]) or 0
-      bonusIds[#bonusIds + 1] = val
-    end
-    upgradeId = tonumber(parts[14 + numBonus]) or 0
-  end
-  if DEBUG then
-    print("StatForge debug raw itemString: " .. itemString)
-    print("StatForge debug parts count: " .. #parts .. ", numBonusIDs: " .. numBonus)
-  end
-  local quality = 0
-  if id and id > 0 then
-    quality = select(3, GetItemInfo(id)) or 0
-  end
-  return {
-    itemId = id,
-    itemLink = itemLink,
-    quality = quality,
-    bonusIds = bonusIds,
-    upgradeId = upgradeId,
-  }
+local function CharKey()
+  return (UnitName("player") or "?") .. "-" .. (GetRealmName() or "?")
 end
 
 -- ---------------------------------------------------------------------------
--- Snapshot builder: character, equipped, bags, talents
+-- Item link parser
+-- Classic Era items carry no bonus IDs or upgrade IDs, so the item ID is all
+-- we need. (The old field-splitting parser used gmatch("[^:]+"), which skips
+-- empty fields and shifts every index — it read garbage on real links.)
+-- ---------------------------------------------------------------------------
+local function ParseItemLink(itemLink)
+  if not itemLink then return nil end
+  local id = tonumber(itemLink:match("|Hitem:(%d+)"))
+  if not id then return nil end
+  return { itemId = id, itemLink = itemLink }
+end
+
+-- ---------------------------------------------------------------------------
+-- Container scanning
+-- ---------------------------------------------------------------------------
+local function ScanContainers(bagList)
+  local out = {}
+  for _, bag in ipairs(bagList) do
+    local numSlots = GetContainerNumSlotsCompat(bag) or 0
+    for slot = 1, numSlots do
+      local link = GetContainerItemLinkCompat(bag, slot)
+      if link then
+        local parsed = ParseItemLink(link)
+        if parsed then
+          out[#out + 1] = {
+            bag = bag,
+            slot = slot,
+            itemId = parsed.itemId,
+            itemLink = link,
+          }
+        end
+      end
+    end
+  end
+  return out
+end
+
+local PLAYER_BAGS = { 0, 1, 2, 3, 4 }
+-- container -1 holds the fixed bank slots; bags 5-11 are bank bags
+local BANK_BAGS = { -1, 5, 6, 7, 8, 9, 10, 11 }
+
+local bankOpen = false
+
+local function CacheBank()
+  if not StatForgeDB then return end
+  StatForgeDB.bankCache = StatForgeDB.bankCache or {}
+  local items = ScanContainers(BANK_BAGS)
+  -- An empty scan usually means the bank data is no longer readable (e.g.
+  -- BANKFRAME_CLOSED fired late) — don't clobber a good cache with nothing.
+  if #items == 0 and StatForgeDB.bankCache[CharKey()] then return end
+  StatForgeDB.bankCache[CharKey()] = {
+    items = items,
+    cachedAt = time(),
+  }
+end
+
+-- Live scan while the bank is open; otherwise fall back to the cached copy
+-- from the last bank visit.
+local function GetBankItems()
+  if bankOpen then
+    return ScanContainers(BANK_BAGS), time()
+  end
+  local cache = StatForgeDB and StatForgeDB.bankCache
+    and StatForgeDB.bankCache[CharKey()]
+  if cache then
+    return cache.items or {}, cache.cachedAt
+  end
+  return {}, nil
+end
+
+-- ---------------------------------------------------------------------------
+-- Snapshot builder: character, equipped, bags, bank, talents
 -- ---------------------------------------------------------------------------
 local function BuildSnapshot()
   local ok, snap = pcall(function()
@@ -96,75 +131,19 @@ local function BuildSnapshot()
             slot = slot,
             itemId = parsed.itemId,
             itemLink = link,
-            bonusIds = parsed.bonusIds,
-            upgradeId = parsed.upgradeId,
           }
-        else
-          if DEBUG then print("StatForge debug: ParseItemLink returned nil for equipped slot " .. slot .. " link = " .. tostring(link)) end
-        end
-      else
-        if DEBUG then print("StatForge debug: equipped slot " .. slot .. " returned nil link") end
-      end
-    end
-
-    -- bags
-    local bags = {}
-    for bag = 0, 4 do
-      local numSlots = GetContainerNumSlotsCompat(bag) or 0
-      if DEBUG then print("StatForge debug: bag " .. bag .. " has " .. numSlots .. " slots") end
-      for slot = 1, numSlots do
-        local link = GetContainerItemLinkCompat(bag, slot)
-        if link then
-          local parsed = ParseItemLink(link)
-          if parsed then
-            bags[#bags + 1] = {
-              bag = bag,
-              slot = slot,
-              itemId = parsed.itemId,
-              itemLink = link,
-              bonusIds = parsed.bonusIds,
-              upgradeId = parsed.upgradeId,
-            }
-          else
-            if DEBUG then print("StatForge debug: ParseItemLink returned nil for bag " .. bag .. " slot " .. slot .. " link = " .. tostring(link)) end
-          end
-        else
-          if DEBUG then print("StatForge debug: bag " .. bag .. " slot " .. slot .. " returned nil link") end
         end
       end
     end
 
-    -- bank: container -1 holds the 28 fixed bank slots; bags 5-11 are bank bags
-    local bank = {}
-    local bankBags = { -1, 5, 6, 7, 8, 9, 10, 11 }
-    for _, bag in ipairs(bankBags) do
-      local numSlots = GetContainerNumSlotsCompat(bag) or 0
-      if DEBUG then print("StatForge debug: bank container " .. bag .. " has " .. numSlots .. " slots") end
-      for slot = 1, numSlots do
-        local link = GetContainerItemLinkCompat(bag, slot)
-        if link then
-          local parsed = ParseItemLink(link)
-          if parsed then
-            bank[#bank + 1] = {
-              bag = bag,
-              slot = slot,
-              itemId = parsed.itemId,
-              itemLink = link,
-              bonusIds = parsed.bonusIds,
-              upgradeId = parsed.upgradeId,
-            }
-          else
-            if DEBUG then print("StatForge debug: ParseItemLink returned nil for bank container " .. bag .. " slot " .. slot .. " link = " .. tostring(link)) end
-          end
-        end
-      end
-    end
+    local bank, bankCachedAt = GetBankItems()
 
     return {
       meta = {
         exportedAt = date("!%Y-%m-%dT%H:%M:%SZ"),
-        addonVersion = "0.1.0",
+        addonVersion = ADDON_VERSION,
         format = "StatForge-v1",
+        bankCachedAt = bankCachedAt,
       },
       character = {
         name = name,
@@ -175,26 +154,76 @@ local function BuildSnapshot()
         talents = talents,
       },
       equipped = equipped,
-      bags = bags,
-      bank = {},
+      bags = ScanContainers(PLAYER_BAGS),
+      bank = bank,
     }
   end)
-  if ok then return snap else
-    print("|cffff0000StatForge:|r " .. tostring(snap))
-    return nil
-  end
+  if ok then return snap end
+  print("|cffff0000StatForge:|r export failed — " .. tostring(snap))
+  return nil
 end
 
 -- ---------------------------------------------------------------------------
--- In-game copy panel
+-- JSON encoding
 -- ---------------------------------------------------------------------------
-local panel = nil
-
-local function ShowPanel()
-  if panel then
-    panel:Show()
-    return
+local function ItemJson(item, includeBag)
+  local s = "    {"
+  if includeBag then
+    s = s .. ('"bag": %d, '):format(item.bag)
   end
+  -- upgradeId/bonusIds kept as constants for StatForge-v1 format compatibility
+  s = s .. ('"slot": %d, "itemId": %d, "itemLink": "%s", "upgradeId": 0, "bonusIds": []}')
+    :format(item.slot, item.itemId, jsonEscape(item.itemLink))
+  return s
+end
+
+local function ItemArrayJson(items, includeBag)
+  local lines = {}
+  for i, item in ipairs(items) do
+    lines[#lines + 1] = ItemJson(item, includeBag) .. (i < #items and "," or "")
+  end
+  return table.concat(lines, "\n")
+end
+
+local function BuildJson(snap)
+  local parts = {}
+  parts[#parts + 1] = "{"
+  parts[#parts + 1] = '  "meta": {'
+  parts[#parts + 1] = ('    "exportedAt": "%s",'):format(jsonEscape(snap.meta.exportedAt))
+  parts[#parts + 1] = ('    "addonVersion": "%s",'):format(jsonEscape(snap.meta.addonVersion))
+  if snap.meta.bankCachedAt then
+    parts[#parts + 1] = ('    "bankCachedAt": %d,'):format(snap.meta.bankCachedAt)
+  end
+  parts[#parts + 1] = ('    "format": "%s"'):format(jsonEscape(snap.meta.format))
+  parts[#parts + 1] = "  },"
+  parts[#parts + 1] = '  "character": {'
+  parts[#parts + 1] = ('    "name": "%s",'):format(jsonEscape(snap.character.name))
+  parts[#parts + 1] = ('    "realm": "%s",'):format(jsonEscape(snap.character.realm))
+  parts[#parts + 1] = ('    "class": "%s",'):format(jsonEscape(snap.character.class))
+  parts[#parts + 1] = ('    "level": %d,'):format(snap.character.level or 0)
+  parts[#parts + 1] = ('    "race": "%s",'):format(jsonEscape(snap.character.race))
+  parts[#parts + 1] = ('    "talents": "%s"'):format(jsonEscape(snap.character.talents))
+  parts[#parts + 1] = "  },"
+  parts[#parts + 1] = '  "equipped": ['
+  parts[#parts + 1] = ItemArrayJson(snap.equipped, false)
+  parts[#parts + 1] = "  ],"
+  parts[#parts + 1] = '  "bags": ['
+  parts[#parts + 1] = ItemArrayJson(snap.bags, true)
+  parts[#parts + 1] = "  ],"
+  parts[#parts + 1] = '  "bank": ['
+  parts[#parts + 1] = ItemArrayJson(snap.bank, true)
+  parts[#parts + 1] = "  ]"
+  parts[#parts + 1] = "}"
+  return table.concat(parts, "\n")
+end
+
+-- ---------------------------------------------------------------------------
+-- In-game copy panel (created once, refreshed on every open)
+-- ---------------------------------------------------------------------------
+local panel, editBox
+
+local function EnsurePanel()
+  if panel then return end
 
   panel = CreateFrame("Frame", "StatForgeExportPanel", UIParent, "BackdropTemplate")
   panel:SetSize(700, 500)
@@ -214,136 +243,93 @@ local function ShowPanel()
   panel:SetScript("OnDragStart", panel.StartMoving)
   panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
 
-  -- Title
+  -- standard ESC-to-close behavior
+  tinsert(UISpecialFrames, "StatForgeExportPanel")
+
   local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
   title:SetPoint("TOP", 0, -12)
   title:SetText("|cff33ff99StatForge|r Export")
 
-  -- Scroll frame wrapper (must exist before EditBox)
   local scroll = CreateFrame("ScrollFrame", "StatForgeESF", panel, "UIPanelScrollFrameTemplate")
   scroll:SetPoint("TOPLEFT", 6, -30)
   scroll:SetSize(672, 425)
 
-  -- Edit box for selectable JSON
-  local eb = CreateFrame("EditBox", nil, scroll)
-  eb:SetMultiLine(true)
-  eb:SetWidth(656)
-  eb:SetPoint("TOPLEFT", scroll, "TOPLEFT", 8, -8)
-  eb:SetMaxLetters(0)
-  eb:SetTextInsets(8, 8, 8, 8)
-  eb:SetAutoFocus(false)
-  eb:SetFontObject("ChatFontNormal")
-  eb:SetScript("OnEscapePressed", function()
-    eb:ClearFocus()
+  editBox = CreateFrame("EditBox", nil, scroll)
+  editBox:SetMultiLine(true)
+  editBox:SetWidth(656)
+  editBox:SetPoint("TOPLEFT", scroll, "TOPLEFT", 8, -8)
+  editBox:SetMaxLetters(0)
+  editBox:SetTextInsets(8, 8, 8, 8)
+  editBox:SetAutoFocus(false)
+  editBox:SetFontObject("ChatFontNormal")
+  editBox:SetScript("OnEscapePressed", function()
+    editBox:ClearFocus()
     panel:Hide()
   end)
   panel:SetScript("OnHide", function()
-    eb:ClearFocus()
+    editBox:ClearFocus()
   end)
 
-  scroll:SetScrollChild(eb)
+  scroll:SetScrollChild(editBox)
 
-  -- Close button (created early so panel is always closeable)
   local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
   close:SetPoint("TOPRIGHT", -6, -6)
-
-  -- Build and set text
-  local snap = BuildSnapshot()
-  if not snap then
-    panel:Hide()
-    panel = nil
-    return
-  end
-  local json = ""
-  -- Simple JSON encoder without serialize()
-  json = json .. "{\n"
-  -- meta
-  json = json .. '  "meta": {\n'
-  json = json .. ('    "exportedAt": "%s",\n'):format(jsonEscape(snap.meta.exportedAt))
-  json = json .. ('    "addonVersion": "%s",\n'):format(jsonEscape(snap.meta.addonVersion))
-  json = json .. ('    "format": "%s"\n'):format(jsonEscape(snap.meta.format))
-  json = json .. "  },\n"
-  -- character
-  json = json .. '  "character": {\n'
-  json = json .. ('    "name": "%s",\n'):format(jsonEscape(snap.character.name))
-  json = json .. ('    "realm": "%s",\n'):format(jsonEscape(snap.character.realm))
-  json = json .. ('    "class": "%s",\n'):format(jsonEscape(snap.character.class))
-  json = json .. ('    "level": %s,\n'):format(tostring(snap.character.level or 0))
-  json = json .. ('    "race": "%s",\n'):format(jsonEscape(snap.character.race))
-  json = json .. ('    "talents": "%s"\n'):format(jsonEscape(snap.character.talents))
-  json = json .. "  },\n"
-  -- equipped
-  json = json .. ('  "equipped": [\n')
-  for i, item in ipairs(snap.equipped) do
-    json = json .. '    {'
-    json = json .. ('"slot": %d, '):format(item.slot)
-    json = json .. ('"itemId": %d, '):format(item.itemId)
-    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
-    json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
-    json = json .. '"bonusIds": ['
-    local first = true
-    for _, bid in ipairs(item.bonusIds) do
-      if not first then json = json .. ", " end
-      json = json .. tostring(bid)
-      first = false
-    end
-    json = json .. "]}"
-    if i < #snap.equipped then json = json .. "," end
-    json = json .. "\n"
-  end
-  json = json .. "  ],\n"
-  -- bags
-  json = json .. ('  "bags": [\n')
-  for i, item in ipairs(snap.bags) do
-    json = json .. '    {'
-    json = json .. ('"bag": %d, '):format(item.bag)
-    json = json .. ('"slot": %d, '):format(item.slot)
-    json = json .. ('"itemId": %d, '):format(item.itemId)
-    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
-    json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
-    json = json .. '"bonusIds": ['
-    local first = true
-    for _, bid in ipairs(item.bonusIds) do
-      if not first then json = json .. ", " end
-      json = json .. tostring(bid)
-      first = false
-    end
-    json = json .. "]}"
-    if i < #snap.bags then json = json .. "," end
-    json = json .. "\n"
-  end
-  json = json .. "  ],\n"
-  -- bank
-  json = json .. ('  "bank": [\n')
-  for i, item in ipairs(snap.bank) do
-    json = json .. '    {'
-    json = json .. ('"bag": %d, '):format(item.bag)
-    json = json .. ('"slot": %d, '):format(item.slot)
-    json = json .. ('"itemId": %d, '):format(item.itemId)
-    json = json .. ('"itemLink": "%s", '):format(jsonEscape(item.itemLink))
-    json = json .. ('"upgradeId": %d, '):format(item.upgradeId)
-    json = json .. '"bonusIds": ['
-    local first = true
-    for _, bid in ipairs(item.bonusIds) do
-      if not first then json = json .. ", " end
-      json = json .. tostring(bid)
-      first = false
-    end
-    json = json .. "]}"
-    if i < #snap.bank then json = json .. "," end
-    json = json .. "\n"
-  end
-  json = json .. "  ]\n"
-  json = json .. "}\n"
-
-  eb:SetText(json)
-
-  -- Focus the box and select all so Ctrl+C works immediately
-  eb:HighlightText(0, json:len())
-  eb:SetFocus()
-
-  panel:Show()
 end
+
+-- Persist the export in SavedVariables so the StatForge desktop app can
+-- auto-import it from WTF/.../SavedVariables/StatForge.lua. The file is only
+-- written to disk on /reload or logout.
+local function SaveExport(json)
+  if not StatForgeDB then return end
+  StatForgeDB.exports = StatForgeDB.exports or {}
+  StatForgeDB.exports[CharKey()] = json
+end
+
+local function ShowPanel()
+  -- Build a fresh snapshot on every open (the old code built it once and
+  -- showed stale data on every subsequent /sf until a /reload).
+  local snap = BuildSnapshot()
+  if not snap then return end
+
+  EnsurePanel()
+  local json = BuildJson(snap)
+  SaveExport(json)
+  editBox:SetText(json)
+  panel:Show()
+  editBox:HighlightText(0, #json)
+  editBox:SetFocus()
+  print("|cff33ff99StatForge:|r export ready — copy it, or just /reload and the desktop app will pick it up.")
+end
+
+-- ---------------------------------------------------------------------------
+-- Events: SavedVariables init + bank caching
+-- ---------------------------------------------------------------------------
+local events = CreateFrame("Frame")
+events:RegisterEvent("ADDON_LOADED")
+events:RegisterEvent("BANKFRAME_OPENED")
+events:RegisterEvent("BANKFRAME_CLOSED")
+events:RegisterEvent("PLAYER_LOGOUT")
+events:SetScript("OnEvent", function(_, event, arg1)
+  if event == "ADDON_LOADED" and arg1 == addonName then
+    StatForgeDB = StatForgeDB or {}
+    StatForgeDB.bankCache = StatForgeDB.bankCache or {}
+    StatForgeDB.exports = StatForgeDB.exports or {}
+  elseif event == "BANKFRAME_OPENED" then
+    bankOpen = true
+    CacheBank()
+  elseif event == "BANKFRAME_CLOSED" then
+    -- capture final state (deposits/withdrawals made while open)
+    CacheBank()
+    bankOpen = false
+  elseif event == "PLAYER_LOGOUT" then
+    -- Auto-export on logout so the desktop app always sees current gear,
+    -- even if the player never typed /sf this session.
+    pcall(function()
+      local snap = BuildSnapshot()
+      if snap then SaveExport(BuildJson(snap)) end
+    end) -- errors intentionally swallowed — never block logout
+  end
+end)
 
 -- ---------------------------------------------------------------------------
 -- Slash commands

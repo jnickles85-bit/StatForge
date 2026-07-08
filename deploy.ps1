@@ -1,6 +1,9 @@
-# StatForge deploy script — pulls latest from GitHub and copies to WoW addon folder
-# Usage: Run from anywhere: powershell -ExecutionPolicy Bypass -File C:\Projects\StatForge\deploy.ps1
-# Or just right-click -> Run with PowerShell
+# StatForge deploy script — copies the addon to the WoW addon folder.
+# Usage: powershell -ExecutionPolicy Bypass -File C:\Projects\StatForge\deploy.ps1 [-NoPull]
+#   -NoPull : skip "git pull" and deploy the local working tree as-is
+#             (use while testing uncommitted changes)
+
+param([switch]$NoPull)
 
 $ErrorActionPreference = "Stop"
 
@@ -10,14 +13,18 @@ $addonPath  = "C:\Program Files (x86)\World of Warcraft\_classic_era_\Interface\
 Write-Host "StatForge Deploy" -ForegroundColor Cyan
 Write-Host "----------------"
 
-# Step 1: Pull latest
-Write-Host "Pulling latest from GitHub..." -ForegroundColor Yellow
-Push-Location $repoPath
-git pull origin main
-if ($LASTEXITCODE -ne 0) { Write-Host "Git pull failed!" -ForegroundColor Red; Pop-Location; exit 1 }
-$commit = git rev-parse --short HEAD
-Write-Host "  -> commit $commit" -ForegroundColor Green
-Pop-Location
+# Step 1: Pull latest (unless -NoPull)
+if ($NoPull) {
+    Write-Host "Skipping git pull (-NoPull) — deploying local files." -ForegroundColor Yellow
+} else {
+    Write-Host "Pulling latest from GitHub..." -ForegroundColor Yellow
+    Push-Location $repoPath
+    git pull origin main
+    if ($LASTEXITCODE -ne 0) { Write-Host "Git pull failed!" -ForegroundColor Red; Pop-Location; exit 1 }
+    $commit = git rev-parse --short HEAD
+    Write-Host "  -> commit $commit" -ForegroundColor Green
+    Pop-Location
+}
 
 # Step 2: Copy files to addon folder
 Write-Host "Copying to WoW addon folder..." -ForegroundColor Yellow
