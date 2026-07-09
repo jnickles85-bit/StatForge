@@ -193,17 +193,23 @@ local function BuildSnapshot()
     local level = UnitLevel("player")
     local _, race = UnitRace("player")
 
-    -- talents: binary string (1/0 per talent point spent)
+    -- talents: binary string (1/0 per talent) + points spent per tab
+    -- (talentPoints like [31,5,15] lets the app auto-detect the spec)
     local talents = ""
+    local talentPoints = {}
     local numTabs = GetNumTalentTabs() or 3
     for tab = 1, numTabs do
       local numTalents = GetNumTalents(tab) or 0
+      local spent = 0
       for i = 1, numTalents do
         local ok2, rank = pcall(function()
           return select(5, GetTalentInfo(tab, i))
         end)
-        talents = talents .. ((ok2 and rank and rank > 0) and "1" or "0")
+        local r = (ok2 and rank) or 0
+        talents = talents .. ((r > 0) and "1" or "0")
+        spent = spent + r
       end
+      talentPoints[#talentPoints + 1] = spent
     end
 
     -- equipped
@@ -238,6 +244,7 @@ local function BuildSnapshot()
         level = level,
         race = race,
         talents = talents,
+        talentPoints = talentPoints,
         stats = BuildCharacterStats(),
       },
       equipped = equipped,
@@ -289,6 +296,12 @@ local function BuildJson(snap)
   parts[#parts + 1] = ('    "class": "%s",'):format(jsonEscape(snap.character.class))
   parts[#parts + 1] = ('    "level": %d,'):format(snap.character.level or 0)
   parts[#parts + 1] = ('    "race": "%s",'):format(jsonEscape(snap.character.race))
+  local tp = snap.character.talentPoints
+  if tp and #tp > 0 then
+    local nums = {}
+    for i, v in ipairs(tp) do nums[i] = tostring(v) end
+    parts[#parts + 1] = ('    "talentPoints": [%s],'):format(table.concat(nums, ", "))
+  end
   local st = snap.character.stats
   parts[#parts + 1] = ('    "talents": "%s"%s'):format(jsonEscape(snap.character.talents), st and "," or "")
   if st then

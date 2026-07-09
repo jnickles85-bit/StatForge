@@ -26,15 +26,15 @@ Findings verified against the actual 38,294-item `item-data.json`.
 | 3.1 Copy-paste killed → SavedVariables auto-export (addon) + file watcher auto-import (app) | both repos |
 | 3.2 Upgrade Finder — full-DB "what should I farm" per slot with sources, faction/phase/level filters (2026-07-09) | app `upgradeFinder.ts`, `UpgradesPanel.tsx`, `data/zones.ts` |
 | 3.3 Data pipeline precompute — 33MB → 6.8MB Era-only compact file, built by shared parser, ~120ms load (2026-07-09) | app `itemParser.ts`, `scripts/build-item-data.mjs` |
+| Character-sheet stats export + display (2026-07-09) | addon 0.3.0 `Core.lua`; app `StatSummary.tsx` |
+| 2.6 Spec auto-detect from talentPoints (2026-07-09) | addon `Core.lua`; app `statWeights.ts`, `UpgradesPanel.tsx` |
+| 2.5/2.6 Dead stat channels removed; `getItemScore` deduped (2026-07-09) | app `statWeights.ts`, `slotCompatibility.ts` |
 
 ### ⬜ Remaining (rough priority order)
 | Item | Notes |
 |---|---|
 | 3.3b Local icon cache | icons still hotlink wow.zamimg.com — cache locally for offline use |
-| 2.6 Random-suffix items ("of the Bear") | suffix carries the stats at low level; suffix ID is already in the exported itemLink |
-| 2.6 Spec auto-detect from talents | needs per-tab talent counts in the export (current flat 1/0 string is undecodable) |
-| 2.5 Dead stat channels in presets | spellDamage*/expertise/resilience/armorPen don't exist in this dataset |
-| 2.6 `getItemScore` duplicated | `upgradeEngine.ts` + `slotCompatibility.ts` |
+| 2.6 Random-suffix items ("of the Bear") | suffix carries the stats at low level; suffix ID is already in the exported itemLink. Main cost: sourcing a vanilla suffix→stats table |
 | 3.4 App polish | persist last import/spec in localStorage, tooltips in Upgrades tab, Electron bump + auto-update, CSP |
 | 3.5 Release hygiene | CI (lint+vitest), BigWigs packager → CurseForge/Wago, TOC auto-bump action |
 
