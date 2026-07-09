@@ -15,12 +15,32 @@ local function jsonEscape(s)
 end
 
 -- ---------------------------------------------------------------------------
--- Compatibility wrappers for Classic Era bag APIs (some builds lack C_Container)
+-- Compatibility wrappers for Classic Era bag APIs.
+-- Dual-path: prefer C_Container, but fall back to the classic globals PER BAG
+-- if the namespaced API returns nothing (some Era builds answer 0 slots for
+-- bags 1-4 through one path but not the other).
 -- ---------------------------------------------------------------------------
-local GetContainerNumSlotsCompat = C_Container and C_Container.GetContainerNumSlots
-  or GetContainerNumSlots
-local GetContainerItemLinkCompat = C_Container and C_Container.GetContainerItemLink
-  or GetContainerItemLink
+local function NumSlots(bag)
+  local n = 0
+  if C_Container and C_Container.GetContainerNumSlots then
+    n = C_Container.GetContainerNumSlots(bag) or 0
+  end
+  if n == 0 and _G.GetContainerNumSlots then
+    n = _G.GetContainerNumSlots(bag) or 0
+  end
+  return n
+end
+
+local function ItemLinkAt(bag, slot)
+  local link
+  if C_Container and C_Container.GetContainerItemLink then
+    link = C_Container.GetContainerItemLink(bag, slot)
+  end
+  if not link and _G.GetContainerItemLink then
+    link = _G.GetContainerItemLink(bag, slot)
+  end
+  return link
+end
 
 local function CharKey()
   return (UnitName("player") or "?") .. "-" .. (GetRealmName() or "?")
@@ -45,9 +65,9 @@ end
 local function ScanContainers(bagList)
   local out = {}
   for _, bag in ipairs(bagList) do
-    local numSlots = GetContainerNumSlotsCompat(bag) or 0
+    local numSlots = NumSlots(bag)
     for slot = 1, numSlots do
-      local link = GetContainerItemLinkCompat(bag, slot)
+      local link = ItemLinkAt(bag, slot)
       if link then
         local parsed = ParseItemLink(link)
         if parsed then
@@ -332,9 +352,35 @@ events:SetScript("OnEvent", function(_, event, arg1)
 end)
 
 -- ---------------------------------------------------------------------------
+-- Debug: /sf debug prints what each container API reports per bag
+-- ---------------------------------------------------------------------------
+local function DebugContainers()
+  local version = GetBuildInfo() or "?"
+  print(("|cff33ff99StatForge|r container debug (client %s):"):format(tostring(version)))
+  for bag = -2, 11 do
+    local viaC = "n/a"
+    if C_Container and C_Container.GetContainerNumSlots then
+      viaC = tostring(C_Container.GetContainerNumSlots(bag))
+    end
+    local viaG = "n/a"
+    if _G.GetContainerNumSlots then
+      viaG = tostring(_G.GetContainerNumSlots(bag))
+    end
+    local link = ItemLinkAt(bag, 1)
+    print(("  bag %d: C_Container=%s global=%s slot1Link=%s"):format(
+      bag, viaC, viaG, link and "yes" or "nil"))
+  end
+end
+
+-- ---------------------------------------------------------------------------
 -- Slash commands
 -- ---------------------------------------------------------------------------
 function SlashCmdList.STATFORGE(msg)
+  local arg = (msg or ""):match("^%s*(.-)%s*$"):lower()
+  if arg == "debug" then
+    DebugContainers()
+    return
+  end
   ShowPanel()
 end
 SLASH_STATFORGE1 = "/statforge"
