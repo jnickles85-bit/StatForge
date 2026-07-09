@@ -24,12 +24,12 @@ Findings verified against the actual 38,294-item `item-data.json`.
 | 2.3 No level/class/proficiency filters | app `upgradeEngine.ts`, `slotCompatibility.ts` |
 | 2.4 Slots scored in isolation → joint solvers for weapons (2H vs MH+OH), ring pairs, trinket pairs; Unique enforced | app `upgradeEngine.ts` |
 | 3.1 Copy-paste killed → SavedVariables auto-export (addon) + file watcher auto-import (app) | both repos |
+| 3.2 Upgrade Finder — full-DB "what should I farm" per slot with sources, faction/phase/level filters (2026-07-09) | app `upgradeFinder.ts`, `UpgradesPanel.tsx`, `data/zones.ts` |
 
 ### ⬜ Remaining (rough priority order)
 | Item | Notes |
 |---|---|
-| 3.2 Upgrade Finder from full item DB | "what should I go farm" per slot, filtered by level/phase/class, linked into Farming tab |
-| 3.3 Data pipeline precompute | 34MB JSON parsed at startup → build-time precompute (~3MB), local icon cache |
+| 3.3 Data pipeline precompute | 34MB JSON parsed at startup → build-time precompute (~3MB), local icon cache. Note: dataset contains 22k+ TBC/WotLK imports (excludable by itemId >= 24000) — precompute should drop them |
 | 2.6 Random-suffix items ("of the Bear") | suffix carries the stats at low level; suffix ID is already in the exported itemLink |
 | 2.6 Spec auto-detect from talents | needs per-tab talent counts in the export (current flat 1/0 string is undecodable) |
 | 2.5 Dead stat channels in presets | spellDamage*/expertise/resilience/armorPen don't exist in this dataset |
