@@ -3,7 +3,7 @@
 --- visit the bank, so exports include bank items even away from the banker.
 
 local addonName = "StatForge"
-local ADDON_VERSION = "0.2.0"
+local ADDON_VERSION = "0.3.0"
 
 local function jsonEscape(s)
   return tostring(s or "")
@@ -118,6 +118,72 @@ local function GetBankItems()
 end
 
 -- ---------------------------------------------------------------------------
+-- Character-sheet stats: real values from the game API (attributes, AP,
+-- crit %, dodge, etc). Gear-tooltip sums can't reproduce these — attack power
+-- from strength/agility/level, for instance — so we export what the game says.
+-- Every call is guarded: if an API is missing on some client, the field is
+-- simply omitted.
+-- ---------------------------------------------------------------------------
+local function BuildCharacterStats()
+  local ok, out = pcall(function()
+    local s = {}
+    local function eff(i)
+      local _, effective = UnitStat("player", i)
+      return effective or 0
+    end
+    s.strength, s.agility, s.stamina, s.intellect, s.spirit =
+      eff(1), eff(2), eff(3), eff(4), eff(5)
+
+    s.health = UnitHealthMax("player") or 0
+    if UnitPowerType("player") == 0 then
+      s.mana = UnitPowerMax("player", 0) or 0
+    end
+
+    local _, effArmor = UnitArmor("player")
+    s.armor = effArmor or 0
+
+    if UnitDefense then
+      local base, modifier = UnitDefense("player")
+      s.defense = (base or 0) + (modifier or 0)
+    end
+
+    local apBase, apPos, apNeg = UnitAttackPower("player")
+    s.attackPower = (apBase or 0) + (apPos or 0) + (apNeg or 0)
+    local rapBase, rapPos, rapNeg = UnitRangedAttackPower("player")
+    s.rangedAttackPower = (rapBase or 0) + (rapPos or 0) + (rapNeg or 0)
+
+    if GetCritChance then s.meleeCrit = GetCritChance() end
+    if GetRangedCritChance then s.rangedCrit = GetRangedCritChance() end
+    if GetSpellCritChance then
+      local best = 0
+      for school = 2, 7 do
+        local c = GetSpellCritChance(school)
+        if c and c > best then best = c end
+      end
+      s.spellCrit = best
+    end
+
+    if GetDodgeChance then s.dodge = GetDodgeChance() end
+    if GetParryChance then s.parry = GetParryChance() end
+    if GetBlockChance then s.block = GetBlockChance() end
+
+    if GetSpellBonusDamage then
+      local best = 0
+      for school = 2, 7 do
+        local d = GetSpellBonusDamage(school)
+        if d and d > best then best = d end
+      end
+      s.spellDamage = best
+    end
+    if GetSpellBonusHealing then s.healingBonus = GetSpellBonusHealing() end
+
+    return s
+  end)
+  if ok then return out end
+  return nil
+end
+
+-- ---------------------------------------------------------------------------
 -- Snapshot builder: character, equipped, bags, bank, talents
 -- ---------------------------------------------------------------------------
 local function BuildSnapshot()
@@ -172,6 +238,7 @@ local function BuildSnapshot()
         level = level,
         race = race,
         talents = talents,
+        stats = BuildCharacterStats(),
       },
       equipped = equipped,
       bags = ScanContainers(PLAYER_BAGS),
@@ -222,7 +289,37 @@ local function BuildJson(snap)
   parts[#parts + 1] = ('    "class": "%s",'):format(jsonEscape(snap.character.class))
   parts[#parts + 1] = ('    "level": %d,'):format(snap.character.level or 0)
   parts[#parts + 1] = ('    "race": "%s",'):format(jsonEscape(snap.character.race))
-  parts[#parts + 1] = ('    "talents": "%s"'):format(jsonEscape(snap.character.talents))
+  local st = snap.character.stats
+  parts[#parts + 1] = ('    "talents": "%s"%s'):format(jsonEscape(snap.character.talents), st and "," or "")
+  if st then
+    local fields = {}
+    local function add(key, value, isPercent)
+      if value ~= nil then
+        local fmt = isPercent and "%.2f" or "%d"
+        fields[#fields + 1] = ('"%s": ' .. fmt):format(key, value)
+      end
+    end
+    add("health", st.health)
+    add("mana", st.mana)
+    add("strength", st.strength)
+    add("agility", st.agility)
+    add("stamina", st.stamina)
+    add("intellect", st.intellect)
+    add("spirit", st.spirit)
+    add("armor", st.armor)
+    add("defense", st.defense)
+    add("attackPower", st.attackPower)
+    add("rangedAttackPower", st.rangedAttackPower)
+    add("meleeCrit", st.meleeCrit, true)
+    add("rangedCrit", st.rangedCrit, true)
+    add("spellCrit", st.spellCrit, true)
+    add("dodge", st.dodge, true)
+    add("parry", st.parry, true)
+    add("block", st.block, true)
+    add("spellDamage", st.spellDamage)
+    add("healingBonus", st.healingBonus)
+    parts[#parts + 1] = '    "stats": {' .. table.concat(fields, ", ") .. '}'
+  end
   parts[#parts + 1] = "  },"
   parts[#parts + 1] = '  "equipped": ['
   parts[#parts + 1] = ItemArrayJson(snap.equipped, false)

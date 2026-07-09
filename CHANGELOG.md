@@ -3,6 +3,16 @@
 All notable changes to the addon. See `AUDIT.md` for the full audit findings
 and remaining roadmap (covers both this repo and StatForge-App).
 
+## [0.3.0] — 2026-07-09
+
+### Added
+- **Character-sheet stats in the export** (`character.stats`): real values from the game API — attributes, health/mana, armor, defense, melee/ranged attack power, crit/dodge/parry/block percentages, spell damage/healing. Gear-tooltip sums can't reproduce these (AP from strength/agility/level, etc.), so the app now shows what the game actually says. All API calls are guarded; missing APIs just omit fields.
+- `/sf debug` — prints per-container slot counts from both bag APIs for diagnosing scan issues.
+
+### Changed
+- Container scanning is dual-path: prefers `C_Container`, falls back to the classic global API per bag.
+- `deploy.ps1` rewritten ASCII-only (PowerShell 5.1 choked on the previous encoding), added `-NoPull`.
+
 ## [0.2.0] — 2026-07-08
 
 ### Fixed
