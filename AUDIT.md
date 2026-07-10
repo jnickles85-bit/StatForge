@@ -29,12 +29,12 @@ Findings verified against the actual 38,294-item `item-data.json`.
 | Character-sheet stats export + display (2026-07-09) | addon 0.3.0 `Core.lua`; app `StatSummary.tsx` |
 | 2.6 Spec auto-detect from talentPoints (2026-07-09) | addon `Core.lua`; app `statWeights.ts`, `UpgradesPanel.tsx` |
 | 2.5/2.6 Dead stat channels removed; `getItemScore` deduped (2026-07-09) | app `statWeights.ts`, `slotCompatibility.ts` |
+| 2.6 Random-suffix stats — game-resolved tooltip export + per-instance scoring (2026-07-09) | addon `Core.lua`; app `resolveOwnedItem` in `itemDatabase.tsx` |
 
 ### ⬜ Remaining (rough priority order)
 | Item | Notes |
 |---|---|
 | 3.3b Local icon cache | icons still hotlink wow.zamimg.com — cache locally for offline use |
-| 2.6 Random-suffix items ("of the Bear") | suffix carries the stats at low level; suffix ID is already in the exported itemLink. Main cost: sourcing a vanilla suffix→stats table |
 | 3.4 App polish | persist last import/spec in localStorage, tooltips in Upgrades tab, Electron bump + auto-update, CSP |
 | 3.5 Release hygiene | CI (lint+vitest), BigWigs packager → CurseForge/Wago, TOC auto-bump action |
 

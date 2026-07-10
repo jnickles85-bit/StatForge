@@ -56,7 +56,44 @@ local function ParseItemLink(itemLink)
   if not itemLink then return nil end
   local id = tonumber(itemLink:match("|Hitem:(%d+)"))
   if not id then return nil end
-  return { itemId = id, itemLink = itemLink }
+  -- suffixId (field 8 of the item string, empty-field-preserving split):
+  -- item:itemId:enchant:gem1:gem2:gem3:gem4:suffixId:uniqueId:...
+  local suffixId = 0
+  local itemString = itemLink:match("|H(item:[^|]+)|h")
+  if itemString then
+    local fields = {}
+    for f in (itemString .. ":"):gmatch("([^:]*):") do
+      fields[#fields + 1] = f
+    end
+    suffixId = tonumber(fields[8]) or 0
+  end
+  return { itemId = id, itemLink = itemLink, suffixId = suffixId }
+end
+
+-- ---------------------------------------------------------------------------
+-- Tooltip scanner: for random-suffix items ("... of the Bear") the base item
+-- DB has no stats — the game resolves them per instance. We read the real
+-- tooltip and export its lines so the app can parse actual stats.
+-- ---------------------------------------------------------------------------
+local scanTip = CreateFrame("GameTooltip", "StatForgeScanTip", nil, "GameTooltipTemplate")
+scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+
+local function ScanTooltipLines(itemLink)
+  local ok, lines = pcall(function()
+    scanTip:ClearLines()
+    scanTip:SetHyperlink(itemLink)
+    local out = {}
+    for i = 1, scanTip:NumLines() do
+      local fs = _G["StatForgeScanTipTextLeft" .. i]
+      local text = fs and fs:GetText()
+      if text and text ~= "" then
+        out[#out + 1] = text
+      end
+    end
+    return out
+  end)
+  if ok then return lines end
+  return nil
 end
 
 -- ---------------------------------------------------------------------------
@@ -76,6 +113,8 @@ local function ScanContainers(bagList)
             slot = slot,
             itemId = parsed.itemId,
             itemLink = link,
+            -- suffixed items carry their real (game-resolved) tooltip
+            tooltip = (parsed.suffixId ~= 0) and ScanTooltipLines(link) or nil,
           }
         end
       end
@@ -223,6 +262,7 @@ local function BuildSnapshot()
             slot = slot,
             itemId = parsed.itemId,
             itemLink = link,
+            tooltip = (parsed.suffixId ~= 0) and ScanTooltipLines(link) or nil,
           }
         end
       end
@@ -266,9 +306,16 @@ local function ItemJson(item, includeBag)
     s = s .. ('"bag": %d, '):format(item.bag)
   end
   -- upgradeId/bonusIds kept as constants for StatForge-v1 format compatibility
-  s = s .. ('"slot": %d, "itemId": %d, "itemLink": "%s", "upgradeId": 0, "bonusIds": []}')
+  s = s .. ('"slot": %d, "itemId": %d, "itemLink": "%s", "upgradeId": 0, "bonusIds": []')
     :format(item.slot, item.itemId, jsonEscape(item.itemLink))
-  return s
+  if item.tooltip and #item.tooltip > 0 then
+    local esc = {}
+    for i, line in ipairs(item.tooltip) do
+      esc[i] = '"' .. jsonEscape(line) .. '"'
+    end
+    s = s .. ', "tooltip": [' .. table.concat(esc, ", ") .. ']'
+  end
+  return s .. "}"
 end
 
 local function ItemArrayJson(items, includeBag)
