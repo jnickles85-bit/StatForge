@@ -3,6 +3,35 @@
 All notable changes to the addon. See `AUDIT.md` for the full audit findings
 and remaining roadmap (covers both this repo and StatForge-App).
 
+## [0.4.0] — 2026-07-10
+
+### Added — In-game product shell (AUDIT Path A / Phase 1)
+- **Main window** (`/sf` or minimap): dark StatForge chrome with tabs **Export | Gear | Options** (AMR-inspired layout, cyan brand).
+- **Minimap button** — left-click toggles UI; drag to reposition (angle saved).
+- **Export tab** — status card (character, last export age, bank cache age/count), **Export now**, optional **Show / Copy JSON**. Opening the tab auto-exports so SavedVariables stay fresh.
+- **Gear tab** — currently-equipped overview with tooltips; Import/Equip stub for Phase 2.
+- **Options tab** — show minimap button, auto-export on logout, about/help.
+- **First-use splash** — bank + desktop workflow guidance (once per character profile).
+- Window position remembered in `StatForgeDB.ui`.
+
+### Added — Export data
+- **`enchantId`** on every equipped/bag/bank item (item string field 3) for future scoring and equip-diff.
+
+### Changed
+- Modular layout: `Constants.lua`, `Snapshot.lua`, `UI.lua`, `ExportTab.lua`, `GearTab.lua`, `OptionsTab.lua`, `Core.lua` (no Ace dependencies).
+- Version **0.4.0**; TOC `## Version` aligned.
+- `deploy.ps1` copies the full multi-file addon and clears stale files.
+
+### Commands
+- `/sf` · `/statforge` — toggle main window
+- `/sf export` — export without opening UI
+- `/sf gear` · `/sf options` — open a specific tab
+- `/sf debug` — container API dump
+
+### Fixed (post-review)
+- Window position no longer tries to store a Frame userdata in SavedVariables (only left/top numbers).
+- Gear tab variable shadowing cleaned up; luacheck CI now lints all seven Lua files, not just Core.lua.
+
 ## [0.3.0] — 2026-07-09
 
 ### Added

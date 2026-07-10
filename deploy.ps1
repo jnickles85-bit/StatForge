@@ -26,24 +26,38 @@ if ($NoPull) {
     Pop-Location
 }
 
-# Step 2: Copy files to addon folder
+# Step 2: Ensure addon folder exists
 Write-Host "Copying to WoW addon folder..." -ForegroundColor Yellow
 if (-not (Test-Path $addonPath)) {
-    Write-Host "Addon folder not found: $addonPath" -ForegroundColor Red
-    Write-Host "Create it first, or adjust the path in this script." -ForegroundColor Red
-    exit 1
+    New-Item -ItemType Directory -Path $addonPath -Force | Out-Null
+    Write-Host "  -> created $addonPath" -ForegroundColor Yellow
 }
 
-$files = @("Core.lua", "StatForge.toc")
+# Step 3: Remove stale single-file layout leftovers, then copy current sources
+Get-ChildItem $addonPath -File -ErrorAction SilentlyContinue | Remove-Item -Force
+
+$files = @(
+    "StatForge.toc",
+    "Constants.lua",
+    "Snapshot.lua",
+    "UI.lua",
+    "ExportTab.lua",
+    "GearTab.lua",
+    "OptionsTab.lua",
+    "Core.lua"
+)
 foreach ($f in $files) {
     $src = Join-Path $repoPath $f
     $dst = Join-Path $addonPath $f
     if (Test-Path $src) {
         Copy-Item $src $dst -Force
         Write-Host "  -> $f" -ForegroundColor Green
+    } else {
+        Write-Host "  !! missing $f" -ForegroundColor Red
+        exit 1
     }
 }
 
 Write-Host ""
-Write-Host "Done! Use /reload in game (full restart only needed for .toc changes)." -ForegroundColor Green
-Write-Host "Use /statforge or /sf in game." -ForegroundColor Cyan
+Write-Host "Done! /reload in game (full client restart needed when .toc file list changes)." -ForegroundColor Green
+Write-Host "Use /statforge or /sf  ·  minimap button also works." -ForegroundColor Cyan

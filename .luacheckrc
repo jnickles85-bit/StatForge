@@ -4,6 +4,7 @@ self = false
 
 -- variables the addon itself defines/writes
 globals = {
+    "StatForge",
     "StatForgeDB",
     "SlashCmdList",
     "SLASH_STATFORGE1",
@@ -15,6 +16,7 @@ read_globals = {
     "_G",
     -- frames & UI
     "CreateFrame", "UIParent", "UISpecialFrames", "tinsert",
+    "GameTooltip", "Minimap", "GetCursorPosition",
     -- containers
     "C_Container", "GetContainerNumSlots", "GetContainerItemLink",
     -- unit info

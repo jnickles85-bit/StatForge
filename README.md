@@ -1,38 +1,43 @@
 # StatForge
 
-A World of Warcraft **Classic Hardcore** addon that exports your character's gear, bags, bank, and talents as JSON — copyable in-game, or picked up automatically by the StatForge desktop app.
+A World of Warcraft **Classic Hardcore** addon that exports your character for the StatForge desktop optimizer — with an AskMrRobot-inspired in-game shell.
 
 ## Usage
 
-**Automatic (recommended):** type `/sf` in-game (or just log out), then `/reload`. The export is written to SavedVariables and the StatForge desktop app imports it automatically.
+| Action | How |
+|--------|-----|
+| Open UI | `/sf` or `/statforge`, or **left-click the minimap button** |
+| Export | **Export** tab → **Export now** (also runs when you open the tab) |
+| Desktop sync | After export, `/reload` or log out — the app reads `SavedVariables/StatForge.lua` |
+| Copy JSON | **Show / Copy JSON** on the Export tab (paste fallback) |
+| Debug bags | `/sf debug` |
 
-**Manual:** type `/statforge` or `/sf` to open the export panel. The JSON is automatically highlighted — press `Ctrl+C` to copy, then paste into the app.
+## Tabs
+
+- **Export** — character status, bank-cache age, export now, optional JSON
+- **Gear** — currently equipped overview; setup import/equip coming next
+- **Options** — minimap, auto-export on logout
 
 ## What it exports
 
-- **Character**: name, realm, class, level, race, talent build
-- **Equipped**: all 19 gear slots with item IDs and item links
-- **Bags**: inventory contents
-- **Bank**: bank contents — cached automatically whenever you visit the bank, so exports include it from anywhere
+- **Character**: name, realm, class, level, race, talents, talentPoints, sheet stats
+- **Equipped / bags / bank**: itemId, itemLink, **enchantId**, suffix tooltips when needed
+- **Bank**: cached whenever you open the bank (usable from anywhere)
 
 ## Output format
 
+`StatForge-v1` JSON (pretty-printed for the copy box). Extra field since 0.4.0:
+
 ```json
-{
-  "meta": { "exportedAt": "...", "addonVersion": "0.2.0", "format": "StatForge-v1" },
-  "character": { "name": "...", "realm": "...", "class": "...", "level": 60, "race": "...", "talents": "..." },
-  "equipped": [...],
-  "bags": [...],
-  "bank": [...]
-}
+"enchantId": 1900
 ```
 
 ## Design notes
 
-- **SavedVariables** (`StatForgeDB`) stores the bank cache and per-character exports — standard, ToS-safe addon persistence (same mechanism TSM and WeakAuras use)
-- **In-game only** — all data gathered via WoW API
-- **JSON output** — portable, parseable anywhere
+- **SavedVariables** (`StatForgeDB`) — bank cache, exports, UI position, setups (soon)
+- **No third-party libs** — pure frames, Classic Era safe
+- Desktop app does heavy optimization; the addon owns export + (soon) import/equip
 
 ## Version
 
-`0.2.0` — Classic Era / Hardcore (Interface 11508)
+`0.4.0` — Classic Era / Hardcore (Interface 11508)
