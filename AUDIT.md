@@ -35,8 +35,8 @@ Findings verified against the actual 38,294-item `item-data.json`.
 | Item | Notes |
 |---|---|
 | 3.3b Local icon cache | icons still hotlink wow.zamimg.com — cache locally for offline use |
-| 3.4 App polish | persist last import/spec in localStorage, tooltips in Upgrades tab, Electron bump + auto-update, CSP |
-| 3.5 Release hygiene | CI (lint+vitest), BigWigs packager → CurseForge/Wago, TOC auto-bump action |
+| 3.4 App polish (remaining) | Electron bump + auto-update (persistence/tooltips/CSP done 2026-07-09) |
+| 3.5 Release hygiene (remaining) | BigWigs packager → CurseForge/Wago, TOC auto-bump action (app CI done 2026-07-09) |
 
 ---
 
