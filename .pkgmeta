@@ -1,0 +1,8 @@
+package-as: StatForge
+
+ignore:
+  - AUDIT.md
+  - CHANGELOG.md
+  - INSTALL.md
+  - deploy.ps1
+  - .luacheckrc

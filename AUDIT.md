@@ -30,13 +30,13 @@ Findings verified against the actual 38,294-item `item-data.json`.
 | 2.6 Spec auto-detect from talentPoints (2026-07-09) | addon `Core.lua`; app `statWeights.ts`, `UpgradesPanel.tsx` |
 | 2.5/2.6 Dead stat channels removed; `getItemScore` deduped (2026-07-09) | app `statWeights.ts`, `slotCompatibility.ts` |
 | 2.6 Random-suffix stats — game-resolved tooltip export + per-instance scoring (2026-07-09) | addon `Core.lua`; app `resolveOwnedItem` in `itemDatabase.tsx` |
+| 3.3b Local icon cache — sficon:// protocol, disk cache, offline support (2026-07-10) | app `electron/main.js`, `getIconUrl` |
+| 3.4/3.5 Session persistence, Upgrades tooltips, app CI, addon luacheck CI + packager release + TOC auto-bump (2026-07-09/10) | app `.github/workflows/ci.yml`; addon `.luacheckrc`, `.pkgmeta`, `.github/workflows/*` |
 
 ### ⬜ Remaining (rough priority order)
 | Item | Notes |
 |---|---|
-| 3.3b Local icon cache | icons still hotlink wow.zamimg.com — cache locally for offline use |
-| 3.4 App polish (remaining) | Electron bump + auto-update (persistence/tooltips/CSP done 2026-07-09) |
-| 3.5 Release hygiene (remaining) | BigWigs packager → CurseForge/Wago, TOC auto-bump action (app CI done 2026-07-09) |
+| 3.4 App distribution | Electron bump + auto-update + installer publishing (only item left) |
 
 ---
 

@@ -1,0 +1,32 @@
+# Weekly check that ## Interface: in the TOC matches the live Classic Era
+# client; opens a PR when Blizzard bumps the version (avoids the "out of
+# date" addon flag ever coming back).
+
+name: Update TOC Interface
+
+on:
+  schedule:
+    - cron: "0 12 * * 5" # Fridays, noon UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update TOC interface version
+        uses: p3lim/toc-interface-updater@v4
+        with:
+          flavor: classic_era
+
+      - name: Create PR if changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "Bump TOC Interface version"
+          commit-message: "Bump TOC Interface version"
+          branch: toc-update
+          delete-branch: true

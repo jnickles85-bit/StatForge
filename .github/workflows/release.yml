@@ -1,0 +1,25 @@
+# Tag a version (e.g. `git tag v0.3.0 && git push --tags`) and this packages
+# the addon and attaches the zip to a GitHub release. If CF_API_KEY /
+# WAGO_API_TOKEN secrets are configured, it also uploads to CurseForge/Wago
+# (those need project IDs in the TOC: ## X-Curse-Project-ID / ## X-Wago-ID).
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Package and release
+        uses: BigWigsMods/packager@v2
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}

@@ -10,6 +10,7 @@ and remaining roadmap (covers both this repo and StatForge-App).
 - `/sf debug` — prints per-container slot counts from both bag APIs for diagnosing scan issues.
 - `character.talentPoints` in the export ([31, 5, 15]) — lets the app auto-detect the spec.
 - **Random-suffix support**: items whose link carries a suffixId ("of the Bear") export their game-resolved tooltip lines (hidden-tooltip scan), so the app can score their real stats instead of the stat-less base item.
+- **Release tooling**: luacheck CI on every push (`.luacheckrc` covers the WoW API surface), BigWigs packager release workflow (tag `v*` → GitHub release zip; CurseForge/Wago upload when `CF_API_KEY`/`WAGO_API_TOKEN` secrets + TOC project IDs are set), and a weekly TOC Interface auto-bump PR.
 
 ### Changed
 - Container scanning is dual-path: prefers `C_Container`, falls back to the classic global API per bag.
