@@ -29,17 +29,31 @@ plus AMR product docs (export ↔ website ↔ import ↔ Gear tab equip flow).
 | **A2 Version/TOC/README aligned** | **Done (0.4.0)** |
 | **A3 enchantId on export items** | **Done (0.4.0)** |
 
+### ✅ A1 Phase 2 — Import + Equip (addon 0.5.0 + app "Send to Addon") — DONE 2026-07-10
+
+### ⚠️ NEEDS IN-GAME TESTING (built & verified offline, not yet run in WoW)
+1. Addon 0.4.0 shell: `/sf` window, tabs, minimap button, Export tab status, first-use splash.
+2. Addon 0.5.0: Gear tab import modal, per-slot status markers, **Equip this setup**.
+3. App "Send to Addon" → paste → equip round trip (format verified offline).
+4. Suffix tooltip export + character-sheet stats on a live character (0.3.0 features — export verified, panel display confirmed for hunter only).
+
 ### ⬜ Open (priority)
 
 | # | Item | Repo | Why it matters |
 |---|---|---|---|
-| **A1 Phase 2** | Import setup string + Gear tab Equip | addon (+ app “Send to Addon”) | Closes AMR loop |
 | **A1 Phase 3** | Optional light in-game upgrades display | addon | Nice-to-have; app remains brain |
-| **P1** | Character roster switcher | app | Multi-alt hardcore reality |
-| **P2** | Watcher-first empty state; bank age in UI | app | Companion feel |
-| **P3** | Electron bump + installer + auto-update | app | Ship-ready product |
-| **P4** | Cap-aware EP, on-use discount, enchants, set bonuses | app | Recommendation quality |
-| **P5** | Loadouts / “apply best” preview | app + addon | Closed loop with Gear Equip |
+| **P1** | Character roster switcher | app | Multi-alt hardcore reality (newest export currently wins) |
+| **P2** | Watcher-first empty state; bank age in app UI | app | Companion feel |
+| **P3** | Electron bump + installer + auto-update | app | Ship-ready product; last distribution item |
+| **P4** | Cap-aware EP, on-use discount, enchant + set-bonus scoring | app | Recommendation quality (enchantId already exported) |
+
+### 📌 For the next auditor (agent or human) — read before proposing work
+
+- **Data contracts (stable — don't break):** export = `StatForge-v1` JSON (see `Snapshot.lua`; optional per-item `tooltip[]` for suffixed items, `enchantId`, `character.stats`, `talentPoints`). Setup import = `SFSETUP1;label;specId;mode;slot=itemId:suffixId:enchantId;...` (see `GearTab.lua` / app `setupExport.ts`). Add fields optionally; never rename.
+- **Single-parser rule:** all item stat parsing lives in app `src/lib/itemParser.ts`, shared by runtime AND the build script (`scripts/build-item-data.mjs`). Never fork it. Parser changes require `npm run build:data`.
+- **Item DB quirks (verified):** dataset ships 22k+ TBC/WotLK items — Era filter is `itemId < 24000` (phase flags are unreliable). Stats are ratings-text + "spell power" normalized. Some tier-quest pieces lack `Classes:` lines (known limitation). `dropChance` is a fraction.
+- **Verify before claiming:** app has 68 tests (`npx vitest run`) + tsc + CI; addon has luacheck CI covering all 7 Lua files. Run them.
+- **Resolved — do not re-fix:** everything in the ✅ tables (bank export, Use:-as-permanent, isolated-slot scoring, suffix stats, Era leakage, hunter RAP…). Regressions would show in the test suite.
 
 ---
 
