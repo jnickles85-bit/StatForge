@@ -290,11 +290,11 @@ Custom font optional (AMR ships Ubuntu); system fonts are fine for v1.
 - [x] First-use splash.  
 - [x] Modular files, no third-party libs.
 
-### Phase 2 — Import + Equip (closes the AMR loop) — **NEXT**
-- [ ] Import modal → `gearSetups`.  
-- [ ] Gear tab list + Equip.  
-- [ ] App: “Copy setup for addon” / “Send to Addon” from Upgrades best-in-bags.  
-- [ ] Missing-item / bank-only messaging.
+### Phase 2 — Import + Equip (closes the AMR loop) — **DONE 2026-07-10**
+- [x] Import modal → `gearSetups` (per-character; `SFSETUP1;label;spec;mode;slot=item:suffix:enchant;...`).  
+- [x] Gear tab: setup selector, per-slot compare (E / bag / bank / not found), Equip, Delete.  
+- [x] App: **Send to Addon** button on Upgrades (engine now exposes `recommended` per slot, incl. combined 2H/ring configs).  
+- [x] Missing-item / bank-only messaging; combat lockdown guard; equip via `EquipItemByName(link, slot)`.
 
 ### Phase 3 — In-game upgrades (optional light BiB)
 - [ ] Either: show **last app result** pushed via import, or  

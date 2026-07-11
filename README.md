@@ -15,7 +15,7 @@ A World of Warcraft **Classic Hardcore** addon that exports your character for t
 ## Tabs
 
 - **Export** — character status, bank-cache age, export now, optional JSON
-- **Gear** — currently equipped overview; setup import/equip coming next
+- **Gear** — import setups from the desktop app ("Send to Addon"), compare vs equipped, **Equip** in one click
 - **Options** — minimap, auto-export on logout
 
 ## What it exports

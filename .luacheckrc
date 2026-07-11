@@ -29,6 +29,7 @@ read_globals = {
     "GetSpellBonusDamage", "GetSpellBonusHealing",
     -- items & talents
     "GetInventoryItemLink", "GetNumTalentTabs", "GetNumTalents", "GetTalentInfo",
+    "GetItemInfo", "EquipItemByName", "InCombatLockdown",
     -- misc
     "GetBuildInfo", "date", "time",
 }

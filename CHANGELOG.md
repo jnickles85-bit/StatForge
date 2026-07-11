@@ -3,6 +3,13 @@
 All notable changes to the addon. See `AUDIT.md` for the full audit findings
 and remaining roadmap (covers both this repo and StatForge-App).
 
+## [0.5.0] — 2026-07-10
+
+### Added — Import + Equip (Phase 2, closes the AMR loop)
+- **Gear tab is live**: paste a setup string from the desktop app ("Send to Addon"), pick it from the setup list, review per-slot status (**E** equipped · **bag** · **bank** · **?** not found), then **Equip this setup** — swaps everything out of combat via `EquipItemByName`, with a summary line (already on / swapped / in bank / not found).
+- Setup string format `SFSETUP1;label;specId;mode;slot=itemId:suffixId:enchantId;...` — matching by itemId + suffixId, so "of the Bear" instances equip correctly. Setups persist per character in `StatForgeDB.gearSetups`.
+- Import modal with paste box + parse errors; Delete per setup.
+
 ## [0.4.0] — 2026-07-10
 
 ### Added — In-game product shell (AUDIT Path A / Phase 1)

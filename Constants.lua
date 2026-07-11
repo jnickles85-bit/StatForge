@@ -5,7 +5,7 @@ StatForge = StatForge or {}
 local SF = StatForge
 
 SF.ADDON_NAME = "StatForge"
-SF.VERSION = "0.4.0"
+SF.VERSION = "0.5.0"
 SF.FORMAT = "StatForge-v1"
 
 -- Brand palette (matches StatForge-App: cyan accent on near-black)
