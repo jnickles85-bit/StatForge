@@ -117,15 +117,13 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Recommendation:** add a flat ESLint config compatible with the installed TypeScript/React plugins, run it in CI, and treat zero warnings as a gate. Do not leave a knowingly nonfunctional script as project documentation.
 
-### M2. Contract types drift from the actual addon payload — partially resolved
+### M2. Contract types drift from the actual addon payload — resolved
 
 **Resolved July 11, 2026:** the addon serializer now actually emits its captured `suffixId`; app interfaces include `suffixId` and `meta.bankCachedAt`; runtime validation checks `suffixId`, `enchantId`, and `bankCachedAt`. Addon and app regression tests cover the repaired boundary.
 
-**Resolved July 11, 2026 (continued):** `meta.exportedAt` and `addonVersion` are now required strings, and the app contract tests consume a golden fixture matching addon serializer output.
+**Resolved July 11, 2026 (continued):** `meta.exportedAt` and `addonVersion` are required strings, app contract tests consume a golden fixture matching addon serializer output, and one versioned Zod schema now drives both runtime validation and inferred TypeScript contract types. Nested character, item, tooltip, bonus-ID, and character-sheet fields are validated by that schema.
 
-**Remaining:** consolidate the handwritten validator and interfaces into one versioned schema. `enchantId` remains optional for backward compatibility with pre-0.4.0 exports.
-
-**Recommendation:** define one versioned schema (Zod, Valibot, or JSON Schema), infer TypeScript types from it, validate watcher and paste input with the same schema, and add addon-produced golden fixtures as contract tests.
+**Backward compatibility:** `enchantId`, `suffixId`, `bankCachedAt`, talent points, tooltips, and character-sheet stats remain optional for older exports, but are validated when present.
 
 ### M3. Important boundary code has no direct tests
 
