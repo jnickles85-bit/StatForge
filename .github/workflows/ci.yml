@@ -11,6 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install test tooling
+        run: npm ci
+
+      - name: Lua behavior tests
+        run: npm test
+
       - name: Luacheck
         uses: nebularg/actions-luacheck@v1
         with:

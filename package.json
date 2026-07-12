@@ -1,0 +1,10 @@
+{
+  "name": "statforge-addon",
+  "private": true,
+  "scripts": {
+    "test": "fengari tests/run.lua"
+  },
+  "devDependencies": {
+    "fengari-node-cli": "0.1.0"
+  }
+}

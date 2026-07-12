@@ -1,362 +1,235 @@
-# StatForge Audit — July 10, 2026
+# StatForge Full Project Audit — July 11, 2026
 
-Scope: `StatForge` (WoW Classic Era addon) and `StatForge-App` (Electron/React optimizer).  
-Reference comparison: local install of **AskMrRobotClassic** at  
-`C:\Program Files (x86)\World of Warcraft\_classic_era_\Interface\AddOns\AskMrRobotClassic`  
-plus AMR product docs (export ↔ website ↔ import ↔ Gear tab equip flow).
+## Executive summary
 
-> **For agents/teammates:** master audit + roadmap for BOTH repos.  
-> Per-repo history: each repo’s `CHANGELOG.md`.  
-> App tests: **61/61** passing (2026-07-10).  
-> **Path A chosen:** in-game shell first. Addon **0.4.0** = Phase 1 shell shipped.
+StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 
----
+- **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
+- **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-## STATUS SNAPSHOT
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. The biggest remaining gap is not visual polish: it is **recommendation fidelity**. Linear EP cannot yet model caps, effects, enchants, set bonuses, rotations, or encounter context well enough to compete with Raidbots/Ask Mr. Robot on optimization correctness.
 
-### ✅ Done (correctness + companion pipeline)
+There are **no verified release-blocking build or unit-test failures** in the app. There are, however, several high-priority product and correctness gaps and a broken lint gate.
 
-| Area | Status |
+## Verification snapshot
+
+| Check | Result |
 |---|---|
-| Bank export / bank cache / stale panel / link parser / TOC 11508 | Fixed (addon 0.2.0+) |
-| SavedVariables auto-export + Electron file watcher auto-import | Done |
-| Use: not permanent; weapon DPS; level/class/proficiency; joint weapons/rings/trinkets; Unique | Done |
-| Upgrade Finder (full DB + sources/faction/phase) | Done |
-| Compact item DB (33MB → ~6.8MB), shared parser, icon cache | Done |
-| Spec auto-detect, random-suffix tooltips, character-sheet stats | Done |
-| Session persistence, Upgrades tooltips, CI (app + addon luacheck/packager/TOC) | Done |
-| **A1 Phase 1 — multi-tab UI + minimap + Export status** | **Done (addon 0.4.0)** |
-| **A2 Version/TOC/README aligned** | **Done (0.4.0)** |
-| **A3 enchantId on export items** | **Done (0.4.0)** |
+| App branch/status | `master...origin/master`, clean |
+| Addon branch/status | `main...origin/main`, clean before this report |
+| App tests | **68/68 passed**, 7/7 files |
+| App production build | **passed**, 1,881 modules; JS 413.07 kB / 125.19 kB gzip |
+| TypeScript | **passed** as part of `npm run build` |
+| App lint | **failed**: ESLint has no configuration file |
+| Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
+| Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
+| GitHub CI | App runs data build + tsc + tests; addon runs luacheck |
 
-### ✅ A1 Phase 2 — Import + Equip (addon 0.5.0 + app "Send to Addon") — DONE 2026-07-10
-
-### ⚠️ NEEDS IN-GAME TESTING (built & verified offline, not yet run in WoW)
-1. Addon 0.4.0 shell: `/sf` window, tabs, minimap button, Export tab status, first-use splash.
-2. Addon 0.5.0: Gear tab import modal, per-slot status markers, **Equip this setup**.
-3. App "Send to Addon" → paste → equip round trip (format verified offline).
-4. Suffix tooltip export + character-sheet stats on a live character (0.3.0 features — export verified, panel display confirmed for hunter only).
-
-### ⬜ Open (priority)
-
-| # | Item | Repo | Why it matters |
-|---|---|---|---|
-| **A1 Phase 3** | Optional light in-game upgrades display | addon | Nice-to-have; app remains brain |
-| **P1** | Character roster switcher | app | Multi-alt hardcore reality (newest export currently wins) |
-| **P2** | Watcher-first empty state; bank age in app UI | app | Companion feel |
-| **P3** | Electron bump + installer + auto-update | app | Ship-ready product; last distribution item |
-| **P4** | Cap-aware EP, on-use discount, enchant + set-bonus scoring | app | Recommendation quality (enchantId already exported) |
-
-### 📌 For the next auditor (agent or human) — read before proposing work
-
-- **Data contracts (stable — don't break):** export = `StatForge-v1` JSON (see `Snapshot.lua`; optional per-item `tooltip[]` for suffixed items, `enchantId`, `character.stats`, `talentPoints`). Setup import = `SFSETUP1;label;specId;mode;slot=itemId:suffixId:enchantId;...` (see `GearTab.lua` / app `setupExport.ts`). Add fields optionally; never rename.
-- **Single-parser rule:** all item stat parsing lives in app `src/lib/itemParser.ts`, shared by runtime AND the build script (`scripts/build-item-data.mjs`). Never fork it. Parser changes require `npm run build:data`.
-- **Item DB quirks (verified):** dataset ships 22k+ TBC/WotLK items — Era filter is `itemId < 24000` (phase flags are unreliable). Stats are ratings-text + "spell power" normalized. Some tier-quest pieces lack `Classes:` lines (known limitation). `dropChance` is a fraction.
-- **Verify before claiming:** app has 68 tests (`npx vitest run`) + tsc + CI; addon has luacheck CI covering all 7 Lua files. Run them.
-- **Resolved — do not re-fix:** everything in the ✅ tables (bank export, Use:-as-permanent, isolated-slot scoring, suffix stats, Era leakage, hunter RAP…). Regressions would show in the test suite.
+> Offline verification cannot replace live WoW validation. The addon shell, bank events, import dialog, and equip flow still need an in-game test matrix.
 
 ---
 
-## 1. What StatForge is (positioning)
+## What is already good
 
-| | Raidbots | AskMrRobot | **StatForge** |
-|--|----------|------------|---------------|
-| Combat sim | Yes | Weights / models | Linear EP (today) |
-| Best-in-bags | Yes | Yes | Yes (joint slots) |
-| Full-DB farm targets | Weak | Strong | Strong + **HC risk** |
-| Auto import | SimC string | Addon string / companion | **SavedVariables watcher** |
-| **In-game gear UI** | No | **Yes (core)** | **Export panel only** |
-| Hardcore risk | No | No | **Yes** |
+### ✅ Architecture and product shape
 
-**Winning strategy:** Hardcore-first companion (safe farms, obtainable upgrades, offline desktop) **plus** an AMR-style in-game shell for export, import, and equipping optimized sets. Do not chase full sim day one.
+- **Verified:** the producer/consumer boundary is explicit: addon `Snapshot.lua` emits `StatForge-v1`; app `validation.ts` accepts it; app `setupExport.ts` emits `SFSETUP1`; addon `GearTab.lua` parses it.
+- **Verified:** Electron uses `nodeIntegration: false`, `contextIsolation: true`, and a preload bridge. This is the correct security baseline.
+- **Verified:** heavy analysis stays in the desktop app while the addon remains small and Classic-safe.
+- **Verified:** SavedVariables discovery supports multiple WoW accounts and watches each account directory.
+- **Verified:** the compact item DB build and runtime share the parser rather than maintaining two divergent implementations.
 
----
+### ✅ Upgrade-engine foundations
 
-## 2. App audit (condensed — still valid)
+- **Verified:** weapons are solved jointly, avoiding impossible “2H + off-hand” recommendations.
+- **Verified:** rings and trinkets are solved as pairs, with physical-instance and Unique constraints.
+- **Verified:** candidates are filtered by required level, class restrictions, weapon proficiency, and armor type.
+- **Verified:** bag and bank items are included in owned-upgrade analysis.
+- **Verified:** random-suffix item tooltips are captured by the addon and resolved by the app.
+- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; all 68 current tests pass.
 
-### Strengths
-- Correct product shape for Classic Hardcore.
-- Modern companion workflow (SV + watcher).
-- Shared pure parser, compact DB, solid unit coverage on hard correctness cases.
-- UI polish (theme, tooltips, animations) is above average for a v0.x desktop tool.
+### ✅ Distinct product direction
 
-### Gaps vs state of the art
-1. **EP ceiling** — linear weights lack hit caps, set bonuses, enchants, discounted on-use.
-2. **No multi-character roster** — newest export always wins.
-3. **No loadouts** — analysis only; no “apply this set.”
-4. **Not distributed** — no installer / auto-update.
-5. **Architecture** — large panel files, prop-drilled state; fine for now, pressure-grows with loadouts.
-6. **First-run still paste-led** even when watcher is live.
-
-### App roadmap (after or in parallel with addon UI)
-1. Character switcher + export age / `bankCachedAt` surface.  
-2. Watcher-first import CTA.  
-3. electron-builder + electron-updater.  
-4. Soft-cap EP + on-use discount + enchants + Classic set bonuses.  
-5. Loadout model + “Send to Addon” string (pairs with Gear tab).  
-6. Virtualized long lists; richer Finder → Farming loop.
+StatForge has a credible niche rather than being a clone: **offline/local character data + Hardcore survivability + farming guidance + in-game equip return path**. That combination is differentiated from Raidbots and AMR.
 
 ---
 
-## 3. Addon audit — current state
+## Findings
 
-### What works
-- Dual bag API path, bank cache with empty-scan guard, logout auto-export.
-- Suffix tooltip scan, character-sheet stats, talentPoints for app spec detect.
-- ESC-closable export frame, friendly failure messages.
-- Deploy script; packager + luacheck + TOC auto-bump workflows.
+## 🔴 Critical
 
-### What’s holding it back
-| Issue | Detail |
-|---|---|
-| **Export-only UI** | Single 700×500 EditBox frame. No tabs, minimap, gear review, or import path. |
-| **No return path** | App optimizes; player must equip manually. AMR’s value is **Send to Addon → Gear tab → Equip**. |
-| **Version drift** | `Core.lua` = 0.3.0; `.toc` / README = 0.2.0. |
-| **No enchantId** | Item string field 2 unused; blocks equip-diff + scoring. |
-| **Pretty JSON only** | Fine for EditBox; minified string better for SV / import payloads. |
-| **No Ace / structure** | Fine at ~550 LOC; multi-tab UI needs modular files. |
-| **Installed copy stale** | Live `_classic_era_` AddOns/StatForge still ~0.2.0 era file dates. |
+**No verified critical defect was found in this offline audit.** Do not interpret this as live-addon certification; the in-game workflow remains unverified here.
 
-### Installed reference: AskMrRobotClassic (local)
+## 🟠 High priority
 
-Structure worth learning from (not copying blindly):
+### H1. Recommendation quality has a hard linear-EP ceiling
 
-```
-AskMrRobotClassic/
-  Core.lua          — AceAddon, AceDB, minimap (LDB), slash, window lifecycle
-  Constants.lua
-  Export.lua        — Export tab + first-use splash + bank scan helpers
-  Import.lua        — Modal import cover (paste setup string)
-  Gear.lua          — Setup dropdown, per-slot optimal vs equipped, gems/enchants, Equip
-  Shopping.lua      — Shopping list window
-  Junk.lua / CombatLog.lua / Options.lua
-  ui/               — Custom AceGUI widgets (frame, tabs, buttons, icons, scroll…)
-  Media/            — Ubuntu fonts, icons, chrome art
-  localization/
-  Libs/             — Ace*, LibDBIcon, LibDataBroker
-```
+**Verified evidence:** `upgradeEngine.ts:getItemScore()` multiplies each parsed stat by a fixed weight and sums it. The score has no stateful cap logic, proc/use modeling, set interactions, enchant contribution, rotation model, encounter duration, or uncertainty range.
 
-**Product loop (AMR):**
-1. **Export tab** — live character string, first-use splash (“open bank, swap specs once”).  
-2. Website / external optimizer runs Best-in-Bags.  
-3. **Import** — paste result into Gear tab (orange Import).  
-4. **Gear tab** — setup dropdown; slot list with quality-colored names, **“E”** if equipped, side panel for gems/enchants; green **Equip** applies set (and optionally Equipment Manager).  
-5. **Shopping / Junk** — secondary windows.  
-6. **Minimap button** — left: toggle UI; right: equip active set.
+**Impact:** recommendations can be directionally useful but cannot reliably match a simulator or mature optimizer. Hit beyond cap can be overvalued; on-use trinkets and set bonuses can be badly ranked; two items with identical static stats but very different effects collapse toward the same model.
 
-**Visual language (AMR):**
-- Dark gray chrome (`Bg` ~41,41,41), thin blue border, custom Ubuntu fonts.  
-- Orange primary actions (Import), green confirm (Equip / OK).  
-- Tan secondary/help text; class-colored icon borders; quality-colored item names.  
-- ~1000×700 main window, remembered position, optional UI scale.  
-- Tab strip: Export | Gear | Log | Options.  
-- Modal “cover” overlays for splash + import.
+**Recommendation:** build a layered evaluator:
 
-**What StatForge should steal conceptually (not pixel-for-pixel):**
-- Multi-tab product window, not a one-off EditBox.  
-- Minimap launcher.  
-- **Bidirectional** data: export *and* import optimized sets.  
-- Gear view that answers “what should I wear?” and “what’s not equipped yet?” at a glance.  
-- First-use guidance for bank/cache.  
-- Remembered window position.
+1. Cap-aware marginal stat values (hit/defense and any class-specific breakpoints).
+2. Enchant contribution and “missing enchant” comparison.
+3. Proc/on-use effect registry with uptime and encounter-duration assumptions.
+4. Set-bonus graph evaluated across whole loadouts.
+5. A lightweight deterministic combat model for supported specs, with EP retained as fast fallback.
+6. Show confidence and assumptions, not a single unexplained score.
 
-**What StatForge should do differently (Hardcore + desktop companion):**
-- Keep **SavedVariables auto-sync** as primary (AMR is still mostly copy-paste).  
-- Desktop app owns heavy optimization; addon can start with **import + equip** and grow light in-game BiB later.  
-- Optional **Farming / Upgrades summary** tab tuned for HC (risk, phase) rather than combat logging.  
-- Visual identity: StatForge cyan accent (`#66FCF1` from the app) instead of AMR orange/blue — same structure, distinct brand.
+### H2. ~~`SFSETUP1` carries enchant IDs but addon matching ignores them~~ — resolved
+
+**Resolved July 11, 2026:** addon matching now requires the requested non-zero enchant ID across equipped items, bags, open-bank scans, and the closed-bank cache. Two regression tests exercise duplicate bag copies and cached-bank mismatch behavior; CI runs them through Fengari.
+
+**Former impact:** duplicate copies with different enchants could cause the addon to equip the wrong physical copy.
+
+**Remaining enhancement:** distinguish “same item, wrong enchant” from fully missing in the UI and add an instance discriminator where Classic item links permit one.
+
+### H3. No character roster; newest export silently wins
+
+**Verified evidence:** `App.tsx` sorts all discovered exports by timestamp and imports `withTime[0]`. There is no roster selector or pinned active character.
+
+**Impact:** multi-alt Hardcore players can be moved to another character merely because that character exported most recently. It also prevents comparison, planning, and per-character history.
+
+**Recommendation:** make the watcher ingest into a roster keyed by realm + character, then let the user select/pin the active character. Show export age and bank-cache age. Never silently replace the active character after the user pins it.
+
+### H4. The release pipeline does not prove the packaged desktop app works
+
+**Verified evidence:** app CI runs compact-data build, `tsc --noEmit`, and Vitest, but does not run `npm run build`, package with electron-builder, inspect artifacts, or smoke-launch the packaged application.
+
+**Impact:** renderer tests can be green while production-only Electron/file/protocol/packaging defects ship.
+
+**Recommendation:** add Windows CI that runs production build + NSIS packaging, verifies expected files, and launches an unpacked build with a smoke-test flag. Add signed releases and update metadata only after that gate passes.
+
+### H5. Live addon behavior is not covered by a repeatable test harness
+
+**Verified evidence:** addon CI only runs luacheck. Core behavior depends on WoW globals and event order. This audit could not run luacheck locally because the command is missing, and it cannot exercise WoW APIs offline without mocks.
+
+**Impact:** bank caching, logout export, tooltip scanning, UI lifecycle, combat lockdown, and sequential equip behavior can regress despite green CI.
+
+**Recommendation:** introduce a Lua mock harness (WoW API stubs + fixtures) for link parsing, JSON escaping, bank-cache guards, setup parsing/matching, and equip decisions. Maintain a short manual in-game matrix for APIs that cannot be realistically mocked.
+
+## 🟡 Medium priority
+
+### M1. The advertised lint command is broken
+
+**Verified evidence:** `npm run lint` exits 2 because no ESLint configuration exists. The script remains in `package.json`, and CI does not invoke it.
+
+**Recommendation:** add a flat ESLint config compatible with the installed TypeScript/React plugins, run it in CI, and treat zero warnings as a gate. Do not leave a knowingly nonfunctional script as project documentation.
+
+### M2. Contract types drift from the actual addon payload — partially resolved
+
+**Resolved July 11, 2026:** the addon serializer now actually emits its captured `suffixId`; app interfaces include `suffixId` and `meta.bankCachedAt`; runtime validation checks `suffixId`, `enchantId`, and `bankCachedAt`. Addon and app regression tests cover the repaired boundary.
+
+**Remaining:** consolidate the handwritten validator and interfaces into one versioned schema, validate `meta.exportedAt`/`addonVersion`, and add addon-produced golden fixtures. `enchantId` remains optional for backward compatibility with pre-0.4.0 exports.
+
+**Recommendation:** define one versioned schema (Zod, Valibot, or JSON Schema), infer TypeScript types from it, validate watcher and paste input with the same schema, and add addon-produced golden fixtures as contract tests.
+
+### M3. Important boundary code has no direct tests
+
+**Verified evidence:** focused `validation.ts` tests were added July 11, 2026. Direct tests are still missing for `electron/savedVariables.js` and `farmingRisk.tsx`.
+
+**Impact:** Lua string unescaping/table extraction, malformed import handling, and Hardcore risk classification are user-critical but unprotected.
+
+**Recommendation:** add fixture-driven tests for multiple accounts/characters, escaped strings, truncated Lua, malformed JSON, old schema versions, risk boundary levels, hazards, and class-kiting adjustments.
+
+### M4. README and version metadata are stale/incomplete
+
+**Verified evidence:** addon TOC says `0.5.0`, while README says `0.4.0`, calls setup storage “soon,” and says import/equip is “soon” although it is implemented. `StatForge-App` has no README. The app package remains `0.1.0` despite substantial functionality.
+
+**Impact:** private GitHub documentation does not accurately explain installation, current features, constraints, or release maturity.
+
+**Recommendation:** update addon README from code, add an app README with screenshots/workflow/build instructions/data privacy, and establish synchronized release notes and semantic versions.
+
+### M5. Dependency and tooling modernization is deferred too far
+
+**Verified evidence:** `npm outdated` reports Electron 31 vs current 43, Vite 5 vs 8, Vitest 1 vs 4, ESLint 8 vs 10, plus other majors. Test/build output warns about deprecated Vite CJS usage and typeless PostCSS module parsing.
+
+**Impact:** security/support debt and future high-risk upgrade jumps. Blindly upgrading everything at once would also be risky.
+
+**Recommendation:** upgrade in staged branches: Electron/builder first, then lint stack, then Vite/Vitest, then React. Add Dependabot or Renovate with grouped updates and CI gates. Resolve module-format warnings explicitly.
+
+### M6. Electron hardening is baseline, not release-grade
+
+**Verified evidence:** isolation is enabled, but no permission-request handler, navigation/window-open guard, sandbox setting, or strict production CSP split is present. CSP currently allows `'unsafe-eval'` globally.
+
+**Recommendation:** disable unexpected navigation/window creation, deny permissions by default, enable renderer sandbox if preload compatibility permits, remove `'unsafe-eval'` in production, and verify remote content cannot acquire privileged bridge behavior.
+
+### M7. Long-term optimizer architecture will strain the current component/state model
+
+**Verified evidence:** app state is concentrated in `App.tsx`, imported data is a single localStorage blob, and several domain-heavy panels/engine files are already large.
+
+**Recommendation:** before adding roster, loadouts, history, and simulation, separate domains: character repository, schema/import service, optimizer service, loadout service, and UI state. Use a small store only when the boundaries justify it; do not refactor solely for fashion.
+
+### M8. Item data provenance and reproducibility need stronger product treatment
+
+**Verified evidence:** a package-sourced item database is transformed locally, with project-specific Era heuristics documented in the previous audit. There is no visible data manifest/version in the UI.
+
+**Recommendation:** ship a data manifest containing source package version, build timestamp, supported game build/phases, record count, parser version, and checksum. Surface it in About/Diagnostics. Prefer explicit phase/provenance data over ID heuristics as the dataset matures.
 
 ---
 
-## 4. In-game vision — “StatForge shell” (AMR-inspired)
+## State-of-the-art roadmap
 
-### Goals
-1. Feel like a **product** when you type `/sf` or click the minimap icon.  
-2. Close the loop: **optimize in app → import in-game → equip**.  
-3. Keep export friction near zero (SV already does this; UI should explain it).  
-4. Stay ToS-safe (standard API, SavedVariables, no memory reading).
+The highest-leverage strategy is **not** “copy Raidbots.” Build the best Hardcore planning companion, then deepen simulation selectively.
 
-### Proposed tabs (v1)
+### Phase 1 — Trustworthy product foundation (1–2 weeks)
 
-| Tab | Purpose | MVP? |
+1. Fix ESLint and add it to CI.
+2. Introduce one runtime schema + golden addon fixtures.
+3. Add SavedVariables, validation, and farming-risk tests.
+4. Fix enchant-aware setup matching.
+5. Update both READMEs and versions.
+6. Add Windows production build/package smoke CI.
+
+### Phase 2 — Hardcore companion advantage (2–4 weeks)
+
+1. Character roster with pinning, export age, and bank-cache freshness.
+2. Saved loadouts and comparison views.
+3. “Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.
+4. Upgrade acquisition planner: route several upgrades together by zone/vendor/dungeon.
+5. Hardcore risk model v2: escape toolkit, crowd-control immunity, caves, hyperspawns, patrol density, leash constraints, consumable readiness.
+6. Data freshness/provenance diagnostics.
+
+### Phase 3 — Optimization fidelity (4–8+ weeks, incremental)
+
+1. Cap-aware weights and constraints.
+2. Enchant library and scoring.
+3. Set-bonus/loadout graph.
+4. Proc/on-use effect registry.
+5. Spec modules with deterministic rotation/encounter models.
+6. Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.
+7. Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.
+
+### Phase 4 — Ship-quality desktop application
+
+1. Signed NSIS installer and controlled auto-update.
+2. Crash/error diagnostics that remain local-first and opt-in.
+3. Offline-first icon/data cache status.
+4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels.
+5. Performance budgets and list virtualization based on measured traces.
+
+### Phase 5 — Optional advanced differentiators
+
+- **Simulation worker threads/Web Workers** so deeper models never block the UI.
+- **Sensitivity analysis:** show which uncertain assumptions change the recommendation.
+- **What-if planning:** level, talent, enchant, and future-item scenarios without mutating current gear.
+- **Shareable local analysis bundles** (no account upload required).
+- **Plugin-like spec model registry** so new specs/effects can be added and tested independently.
+
+---
+
+## Recommended next order
+
+| Priority | Work | Why |
 |---|---|---|
-| **Export** | Status (last export time, bank cache age), “Export now”, optional copy JSON, desktop-watcher instructions | Yes |
-| **Upgrades** | Top bag/bank upgrades for current spec/mode (needs either embedded EP or last result from app) | Phase 2 |
-| **Gear** | Imported setups: slot list, equipped marker, Equip button | Yes (with import) |
-| **Options** | Minimap, scale, auto-export on logout, “don’t touch EM sets” | Yes |
+| 1 | Schema + contract fixtures + missing boundary tests | Prevent silent corruption between the two repos |
+| 2 | Enchant-aware matching | Closes a real loadout correctness gap |
+| 3 | Roster + freshness UI | Largest immediate usability gain for real Hardcore play |
+| 4 | Windows package smoke CI + installer/update path | Converts a dev app into a shippable product |
+| 5 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
+| 6 | Effect/rotation modules + confidence/explanations | Path toward genuine state-of-the-art trustworthiness |
 
-Phase 3 (optional): **Farming** hints (static or from last app push), junk-adjacent “vendor greens” later.
+## Bottom line
 
-### Architecture recommendation (addon)
-
-Don’t keep growing a single `Core.lua`. Split like AMR, but leaner:
-
-```
-StatForge/
-  StatForge.toc
-  Core.lua              — lifecycle, slash, minimap, DB defaults
-  Export.lua            — snapshot builder + Export tab (move from Core)
-  Import.lua            — parse app→addon payload into GearSetups
-  Gear.lua              — Gear tab + EquipGearSet
-  Options.lua
-  ui/
-    Frame.lua           — main window + tabs (native frames OR AceGUI)
-    Widgets.lua         — small helpers (button, label, scroll)
-  Constants.lua         — colors, slot names, class colors
-  Media/                — minimap icon (reuse or design)
-```
-
-**Library choice:**
-- **Option A (faster, AMR-like):** Ace3 + AceDB + LibDBIcon (battle-tested pattern).  
-- **Option B (lighter):** pure frames + SavedVariables (no Ace), custom tabs — less deps, more UI code.
-
-Recommendation: **Option A** for the shell if you’re optimizing for ship speed and maintainability; Ace is ubiquitous in Classic addons and matches the reference you already run.
-
-### Data contracts
-
-**Export (addon → app)** — keep `StatForge-v1` JSON; add:
-```json
-"enchantId": 1234   // per item, from item string field 2
-```
-Optional later: `uniqueId`, durability, money, professions.
-
-**Import (app → addon)** — new compact format, e.g. `StatForge-Setup-v1`:
-```json
-{
-  "format": "StatForge-Setup-v1",
-  "label": "BiB Survival",
-  "specId": "warrior-prot",
-  "mode": "survival",
-  "slots": {
-    "1": { "itemId": 12345, "enchantId": 0, "suffixId": 0 },
-    "16": { "itemId": 19364, "enchantId": 1900 }
-  }
-}
-```
-
-Stored in `StatForgeDB.gearSetups[]`. Gear tab renders; Equip walks bags/bank/equipped with match logic similar to AMR’s `FindMatchingItem` (itemId + suffix first; enchant as soft mismatch).
-
-**App side:** “Send to Addon” / copy setup string (and/or write into a side channel later). For v1, **paste import** in-game is enough and mirrors AMR; desktop can also write setups into a watched file later.
-
-### Equip behavior (v1)
-1. For each slot in setup, find best matching item in equipped → bags → bank cache.  
-2. Use secure equip APIs only out of combat (`EquipItemByName` / pickup+equip patterns AMR uses).  
-3. Mark missing items (in bank / not owned) clearly — don’t fail silently.  
-4. Optional: create/update an Equipment Manager set named `StatForge: <label>`.
-
-### Export tab UX (replace raw JSON as primary)
-```
-[StatForge]  ·  Export
-
-  Watching path handled by desktop app
-  Last export:  2 minutes ago  ·  bank cache: 1h ago (visit bank to refresh)
-
-  [ Export now ]     writes SV + refreshes panel
-  [ Copy JSON  ]     advanced / paste fallback
-
-  Help: /sf then /reload · desktop imports automatically
-```
-
-Keep the multi-line JSON behind “Copy JSON” or a collapsible advanced section — not the hero UI.
-
-### Gear tab UX (AMR-shaped)
-```
-[ Import ]   Setup: [ BiB Survival ▾ ]
-
-  [Class icon]   [ Equip this setup ]
-
-  Head      66   E   Lionheart Helm
-  Neck      63       Onyxia Tooth Pendant      ← bold = not equipped
-  ...
-  Main Hand 75   E   Thunderfury
-```
-Right column later: enchant short text, upgrade delta if we push scores from app.
-
-### Visual system (StatForge brand)
-Map AMR structure → your app palette:
-
-| Role | AMR | StatForge |
-|---|---|---|
-| Accent / headers | Orange | Cyan accent `#66FCF1` / class color |
-| Confirm | Green | Green (keep — universal) |
-| Import / secondary CTA | Orange | Cyan or amber |
-| Background | Gray 41 | Near-black `#0B0C10` / `#13151C` |
-| Border | Blue | Dim cyan / slate |
-| Body text | White / tan | White / muted slate |
-
-Custom font optional (AMR ships Ubuntu); system fonts are fine for v1.
-
----
-
-## 5. Phased implementation plan
-
-### Phase 0 — Hygiene
-- [x] Align version → **0.4.0** (toc, README, `SF.VERSION`).  
-- [x] Export `enchantId` on all items.  
-- [x] Surface bank cache / last export age on Export tab.  
-- [x] `deploy.ps1` multi-file copy.
-
-### Phase 1 — In-game product shell
-- [x] Minimap button (pure frames, no Ace) + `/sf` toggles main window.  
-- [x] Main frame ~920×620, tabs: Export | Gear | Options.  
-- [x] Export tab status + Export now + Show/Copy JSON.  
-- [x] `StatForgeDB` for window pos, firstUse, minimap, gearSetups stub.  
-- [x] First-use splash.  
-- [x] Modular files, no third-party libs.
-
-### Phase 2 — Import + Equip (closes the AMR loop) — **DONE 2026-07-10**
-- [x] Import modal → `gearSetups` (per-character; `SFSETUP1;label;spec;mode;slot=item:suffix:enchant;...`).  
-- [x] Gear tab: setup selector, per-slot compare (E / bag / bank / not found), Equip, Delete.  
-- [x] App: **Send to Addon** button on Upgrades (engine now exposes `recommended` per slot, incl. combined 2H/ring configs).  
-- [x] Missing-item / bank-only messaging; combat lockdown guard; equip via `EquipItemByName(link, slot)`.
-
-### Phase 3 — In-game upgrades (optional light BiB)
-- [ ] Either: show **last app result** pushed via import, or  
-- [ ] Embed minimal EP tables in the addon for bag-only upgrades (no full 38k DB in Lua).  
-- [ ] Prefer app-computed setups for accuracy; in-game = display + equip.
-
-### Phase 4 — App distribution + scoring depth
-- [ ] Installer, auto-update, roster, cap-aware weights, sets, enchants scoring.
-
----
-
-## 6. Priority order (updated)
-
-1. **Decide:** in-game shell (A1) vs app ship (P3) first — see §7.  
-2. Phase 0 hygiene (version + enchantId) either way.  
-3. Phase 1–2 addon shell + import/equip if product goal is “feels like AMR in-game.”  
-4. App roster + watcher UX + distribution.  
-5. Scoring depth + loadouts polish.
-
----
-
-## 7. Decision: where to invest next
-
-| Path | Outcome | Effort |
-|---|---|---|
-| **A — In-game shell first** | Typing `/sf` feels like AMR; equip optimized sets in-world; strongest emotional upgrade for Classic players | Medium–High (addon restructure) |
-| **B — App ship first** | Friends can install/update StatForge-App; engine already good | Medium |
-| **C — Parallel thin slice** | Phase 0 + minimap + Export status tab **and** character switcher in app | Medium |
-
-**Recommendation:** **Path A (or C)** if your inspiration is “I want AskMrRobot’s *in-game* experience.” The desktop app already carries the optimizer brain; the missing half of AMR is the **in-game product shell + equip loop**. Path B matters for distribution but won’t fix the “addon is just a JSON dump” feeling.
-
----
-
-## 8. Historical correctness log (July 8 findings)
-
-All original §1 addon bugs and §2 app engine bugs from the July 8 audit are **resolved** except residual product items (suffix needed addon 0.3.0 — done; getItemScore dedupe — done). See earlier CHANGELOGs for details. Do not re-fix bank-empty / Use:-as-permanent / isolated-slot scoring unless regressions appear.
-
----
-
-## 9. Notes for implementers
-
-- **Do not copy AMR code** — licensed third-party addon; use as **UX/architecture reference only**.  
-- Combat lockdown: never equip mid-combat; queue or message.  
-- Bank items: equip from bank only when bank is open; otherwise mark “in bank.”  
-- Classic Era has no gem sockets like retail — keep gem UI out of Era scope; **enchants matter**.  
-- Keep `StatForge-v1` export stable; add fields optionally; bump setup format separately.  
-- After Phase 1, update this STATUS table and `CHANGELOG.md`.
-
----
-
-*Last updated: 2026-07-10 — refreshed full audit; added AMR Classic local teardown and in-game shell plan.*
+StatForge has already crossed the line from JSON viewer to a credible two-way optimizer companion. Its strongest assets are the local-first workflow, tested joint-slot logic, and Hardcore-specific direction. To become state of the art, prioritize **model fidelity, explainability, reproducible contracts, and release engineering** ahead of more decorative UI work.

@@ -302,8 +302,8 @@ local function ItemJson(item, includeBag)
   if includeBag then
     s = s .. ('"bag": %d, '):format(item.bag or 0)
   end
-  s = s .. ('"slot": %d, "itemId": %d, "itemLink": "%s", "enchantId": %d, "upgradeId": 0, "bonusIds": []')
-    :format(item.slot, item.itemId, jsonEscape(item.itemLink), item.enchantId or 0)
+  s = s .. ('"slot": %d, "itemId": %d, "itemLink": "%s", "enchantId": %d, "suffixId": %d, "upgradeId": 0, "bonusIds": []')
+    :format(item.slot, item.itemId, jsonEscape(item.itemLink), item.enchantId or 0, item.suffixId or 0)
   if item.tooltip and #item.tooltip > 0 then
     local esc = {}
     for i, line in ipairs(item.tooltip) do

@@ -50,12 +50,15 @@ function SF.ParseSetupString(s)
 end
 
 -- ---------------------------------------------------------------------------
--- Item matching: itemId always, suffixId when the setup specifies one
+-- Item matching: itemId always, suffixId/enchantId when the setup specifies them
 -- ---------------------------------------------------------------------------
 local function linkMatches(link, want)
   local p = SF.ParseItemLink(link)
   if not p or p.itemId ~= want.itemId then return false end
   if want.suffixId and want.suffixId ~= 0 and p.suffixId ~= want.suffixId then
+    return false
+  end
+  if want.enchantId and want.enchantId ~= 0 and p.enchantId ~= want.enchantId then
     return false
   end
   return true
@@ -85,7 +88,8 @@ function SF.FindItemForSetup(want)
     if cache and cache.items then
       for _, it in ipairs(cache.items) do
         if it.itemId == want.itemId
-          and (not want.suffixId or want.suffixId == 0 or (it.suffixId or 0) == want.suffixId) then
+          and (not want.suffixId or want.suffixId == 0 or (it.suffixId or 0) == want.suffixId)
+          and (not want.enchantId or want.enchantId == 0 or (it.enchantId or 0) == want.enchantId) then
           return nil, "bankClosed"
         end
       end
