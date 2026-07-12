@@ -174,7 +174,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 3. ~~Add SavedVariables, validation, and farming-risk tests.~~ — completed July 12, 2026.
 4. Fix enchant-aware setup matching.
 5. Update both READMEs and versions.
-6. Add Windows production build/package smoke CI.
+6. ~~Add Windows production build/package smoke CI.~~ — completed July 12, 2026.
 
 ### Phase 2 — Hardcore companion advantage (2–4 weeks)
 
