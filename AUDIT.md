@@ -111,11 +111,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 ## 🟡 Medium priority
 
-### M1. The advertised lint command is broken
+### M1. The advertised lint command is broken — resolved
 
-**Verified evidence:** `npm run lint` exits 2 because no ESLint configuration exists. The script remains in `package.json`, and CI does not invoke it.
-
-**Recommendation:** add a flat ESLint config compatible with the installed TypeScript/React plugins, run it in CI, and treat zero warnings as a gate. Do not leave a knowingly nonfunctional script as project documentation.
+**Resolved July 12, 2026:** the app now has a flat ESLint configuration covering TypeScript, React hooks, and component Fast Refresh boundaries. `npm run lint` enforces zero warnings and runs in CI before type checking and tests.
 
 ### M2. Contract types drift from the actual addon payload — resolved
 
@@ -175,7 +173,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 ### Phase 1 — Trustworthy product foundation (1–2 weeks)
 
-1. Fix ESLint and add it to CI.
+1. ~~Fix ESLint and add it to CI.~~ — completed July 12, 2026.
 2. Introduce one runtime schema + golden addon fixtures.
 3. Add SavedVariables, validation, and farming-risk tests.
 4. Fix enchant-aware setup matching.
