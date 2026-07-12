@@ -121,13 +121,15 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 11, 2026:** the addon serializer now actually emits its captured `suffixId`; app interfaces include `suffixId` and `meta.bankCachedAt`; runtime validation checks `suffixId`, `enchantId`, and `bankCachedAt`. Addon and app regression tests cover the repaired boundary.
 
-**Remaining:** consolidate the handwritten validator and interfaces into one versioned schema, validate `meta.exportedAt`/`addonVersion`, and add addon-produced golden fixtures. `enchantId` remains optional for backward compatibility with pre-0.4.0 exports.
+**Resolved July 11, 2026 (continued):** `meta.exportedAt` and `addonVersion` are now required strings, and the app contract tests consume a golden fixture matching addon serializer output.
+
+**Remaining:** consolidate the handwritten validator and interfaces into one versioned schema. `enchantId` remains optional for backward compatibility with pre-0.4.0 exports.
 
 **Recommendation:** define one versioned schema (Zod, Valibot, or JSON Schema), infer TypeScript types from it, validate watcher and paste input with the same schema, and add addon-produced golden fixtures as contract tests.
 
 ### M3. Important boundary code has no direct tests
 
-**Verified evidence:** focused `validation.ts` tests were added July 11, 2026. Direct tests are still missing for `electron/savedVariables.js` and `farmingRisk.tsx`.
+**Verified evidence:** focused `validation.ts` and `electron/savedVariables.js` tests were added July 11, 2026, including multiple characters, Lua escaping, truncation, and malformed entries. Direct tests are still missing for `farmingRisk.tsx`.
 
 **Impact:** Lua string unescaping/table extraction, malformed import handling, and Hardcore risk classification are user-critical but unprotected.
 
