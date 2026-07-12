@@ -93,13 +93,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Recommendation:** make the watcher ingest into a roster keyed by realm + character, then let the user select/pin the active character. Show export age and bank-cache age. Never silently replace the active character after the user pins it.
 
-### H4. The release pipeline does not prove the packaged desktop app works
+### H4. The release pipeline does not prove the packaged desktop app works — resolved
 
-**Verified evidence:** app CI runs compact-data build, `tsc --noEmit`, and Vitest, but does not run `npm run build`, package with electron-builder, inspect artifacts, or smoke-launch the packaged application.
-
-**Impact:** renderer tests can be green while production-only Electron/file/protocol/packaging defects ship.
-
-**Recommendation:** add Windows CI that runs production build + NSIS packaging, verifies expected files, and launches an unpacked build with a smoke-test flag. Add signed releases and update metadata only after that gate passes.
+**Resolved July 12, 2026:** Windows CI now builds the production renderer, packages NSIS and unpacked artifacts, verifies the installer, smoke-launches the packaged executable, and uploads release artifacts. Code signing and controlled auto-update remain later ship-quality work.
 
 ### H5. Live addon behavior is not covered by a repeatable test harness
 
@@ -127,13 +123,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 12, 2026:** focused tests now cover validation, SavedVariables parsing, multiple characters, Lua escaping, truncation, malformed entries, farming-risk score boundaries, authored fallbacks, PvP exclusion, combat hazards, above-level danger, and complete location assessment.
 
-### M4. README and version metadata are stale/incomplete
+### M4. README and version metadata are stale/incomplete — resolved
 
-**Verified evidence:** addon TOC says `0.5.0`, while README says `0.4.0`, calls setup storage “soon,” and says import/equip is “soon” although it is implemented. `StatForge-App` has no README. The app package remains `0.1.0` despite substantial functionality.
-
-**Impact:** private GitHub documentation does not accurately explain installation, current features, constraints, or release maturity.
-
-**Recommendation:** update addon README from code, add an app README with screenshots/workflow/build instructions/data privacy, and establish synchronized release notes and semantic versions.
+**Resolved July 12, 2026:** addon and desktop documentation now describe installation, the complete local data round trip, privacy boundaries, development, packaging, testing, and current limitations. Both projects and their changelogs are aligned at `0.5.0`; the app package includes explicit private/unlicensed, author, repository, homepage, and issue metadata.
 
 ### M5. Dependency and tooling modernization is deferred too far
 
@@ -170,10 +162,10 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 ### Phase 1 — Trustworthy product foundation (1–2 weeks)
 
 1. ~~Fix ESLint and add it to CI.~~ — completed July 12, 2026.
-2. Introduce one runtime schema + golden addon fixtures.
+2. ~~Introduce one runtime schema + golden addon fixtures.~~ — completed July 11, 2026.
 3. ~~Add SavedVariables, validation, and farming-risk tests.~~ — completed July 12, 2026.
-4. Fix enchant-aware setup matching.
-5. Update both READMEs and versions.
+4. ~~Fix enchant-aware setup matching.~~ — completed July 11, 2026.
+5. ~~Update both READMEs and versions.~~ — completed July 12, 2026.
 6. ~~Add Windows production build/package smoke CI.~~ — completed July 12, 2026.
 
 ### Phase 2 — Hardcore companion advantage (2–4 weeks)

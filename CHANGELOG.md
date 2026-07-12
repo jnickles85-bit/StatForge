@@ -3,21 +3,19 @@
 All notable changes to the addon. See `AUDIT.md` for the full audit findings
 and remaining roadmap (covers both this repo and StatForge-App).
 
-## [Unreleased]
-
-### Fixed
-- Setup matching now honors a requested non-zero `enchantId` in bags, an open bank, equipped slots, and the closed-bank cache. Duplicate copies with different enchants no longer select/report the wrong copy.
-- Snapshot JSON now preserves `suffixId`; the in-memory snapshot previously captured it but the serializer dropped it at the producer/consumer boundary.
-
-### Added
-- Lua behavior tests run through Fengari with `npm test`; GitHub CI now runs them before luacheck. Contract coverage includes `suffixId` and bank-cache freshness serialization.
-
-## [0.5.0] — 2026-07-10
+## [0.5.0] — 2026-07-12
 
 ### Added — Import + Equip (Phase 2, closes the AMR loop)
 - **Gear tab is live**: paste a setup string from the desktop app ("Send to Addon"), pick it from the setup list, review per-slot status (**E** equipped · **bag** · **bank** · **?** not found), then **Equip this setup** — swaps everything out of combat via `EquipItemByName`, with a summary line (already on / swapped / in bank / not found).
 - Setup string format `SFSETUP1;label;specId;mode;slot=itemId:suffixId:enchantId;...` — matching by itemId + suffixId + requested non-zero enchantId, so random-suffix and duplicate enchanted instances equip correctly. Setups persist per character in `StatForgeDB.gearSetups`.
 - Import modal with paste box + parse errors; Delete per setup.
+
+### Fixed
+- Setup matching honors a requested non-zero `enchantId` in bags, an open bank, equipped slots, and the closed-bank cache. Duplicate copies with different enchants no longer select or report the wrong copy.
+- Snapshot JSON preserves `suffixId`; the in-memory snapshot previously captured it but the serializer dropped it at the producer/consumer boundary.
+
+### Testing
+- Lua behavior tests run through Fengari with `npm test`; GitHub CI runs them before luacheck. Contract coverage includes `suffixId` and bank-cache freshness serialization.
 
 ## [0.4.0] — 2026-07-10
 
