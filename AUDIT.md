@@ -123,13 +123,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Backward compatibility:** `enchantId`, `suffixId`, `bankCachedAt`, talent points, tooltips, and character-sheet stats remain optional for older exports, but are validated when present.
 
-### M3. Important boundary code has no direct tests
+### M3. Important boundary code has no direct tests — resolved
 
-**Verified evidence:** focused `validation.ts` and `electron/savedVariables.js` tests were added July 11, 2026, including multiple characters, Lua escaping, truncation, and malformed entries. Direct tests are still missing for `farmingRisk.tsx`.
-
-**Impact:** Lua string unescaping/table extraction, malformed import handling, and Hardcore risk classification are user-critical but unprotected.
-
-**Recommendation:** add fixture-driven tests for multiple accounts/characters, escaped strings, truncated Lua, malformed JSON, old schema versions, risk boundary levels, hazards, and class-kiting adjustments.
+**Resolved July 12, 2026:** focused tests now cover validation, SavedVariables parsing, multiple characters, Lua escaping, truncation, malformed entries, farming-risk score boundaries, authored fallbacks, PvP exclusion, combat hazards, above-level danger, and complete location assessment.
 
 ### M4. README and version metadata are stale/incomplete
 
@@ -175,7 +171,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 1. ~~Fix ESLint and add it to CI.~~ — completed July 12, 2026.
 2. Introduce one runtime schema + golden addon fixtures.
-3. Add SavedVariables, validation, and farming-risk tests.
+3. ~~Add SavedVariables, validation, and farming-risk tests.~~ — completed July 12, 2026.
 4. Fix enchant-aware setup matching.
 5. Update both READMEs and versions.
 6. Add Windows production build/package smoke CI.
