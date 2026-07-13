@@ -167,7 +167,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 ### Phase 2 — Hardcore companion advantage (2–4 weeks)
 
 1. ~~Character roster with pinning, export age, and bank-cache freshness.~~ — completed July 12, 2026.
-2. Saved loadouts and comparison views.
+2. ~~Saved loadouts and comparison views.~~ — completed July 12, 2026.
 3. “Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.
 4. Upgrade acquisition planner: route several upgrades together by zone/vendor/dungeon.
 5. Hardcore risk model v2: escape toolkit, crowd-control immunity, caves, hyperspawns, patrol density, leash constraints, consumable readiness.
@@ -205,12 +205,11 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Schema + contract fixtures + missing boundary tests | Prevent silent corruption between the two repos |
-| 2 | Enchant-aware matching | Closes a real loadout correctness gap |
-| 3 | Roster + freshness UI | Largest immediate usability gain for real Hardcore play |
-| 4 | Windows package smoke CI + installer/update path | Converts a dev app into a shippable product |
-| 5 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
-| 6 | Effect/rotation modules + confidence/explanations | Path toward genuine state-of-the-art trustworthiness |
+| 1 | Recommendation explanations | Makes gains, losses, assumptions, sources, and risk understandable |
+| 2 | Upgrade acquisition planner | Converts isolated upgrades into practical Hardcore routes |
+| 3 | Hardcore risk model v2 + data provenance diagnostics | Deepens the product's local-first Hardcore advantage and trust |
+| 4 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
+| 5 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
 
 ## Bottom line
 
