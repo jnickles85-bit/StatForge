@@ -168,7 +168,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 1. ~~Character roster with pinning, export age, and bank-cache freshness.~~ — completed July 12, 2026.
 2. ~~Saved loadouts and comparison views.~~ — completed July 12, 2026.
-3. “Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.
+3. ~~“Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.~~ — completed July 13, 2026.
 4. Upgrade acquisition planner: route several upgrades together by zone/vendor/dungeon.
 5. Hardcore risk model v2: escape toolkit, crowd-control immunity, caves, hyperspawns, patrol density, leash constraints, consumable readiness.
 6. Data freshness/provenance diagnostics.
@@ -205,11 +205,10 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Recommendation explanations | Makes gains, losses, assumptions, sources, and risk understandable |
-| 2 | Upgrade acquisition planner | Converts isolated upgrades into practical Hardcore routes |
-| 3 | Hardcore risk model v2 + data provenance diagnostics | Deepens the product's local-first Hardcore advantage and trust |
-| 4 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
-| 5 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
+| 1 | Upgrade acquisition planner | Converts isolated upgrades into practical Hardcore routes |
+| 2 | Hardcore risk model v2 + data provenance diagnostics | Deepens the product's local-first Hardcore advantage and trust |
+| 3 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
+| 4 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
 
 ## Bottom line
 
