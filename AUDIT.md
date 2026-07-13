@@ -85,13 +85,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Remaining enhancement:** distinguish “same item, wrong enchant” from fully missing in the UI and add an instance discriminator where Classic item links permit one.
 
-### H3. No character roster; newest export silently wins
+### H3. No character roster; newest export silently wins — resolved
 
-**Verified evidence:** `App.tsx` sorts all discovered exports by timestamp and imports `withTime[0]`. There is no roster selector or pinned active character.
-
-**Impact:** multi-alt Hardcore players can be moved to another character merely because that character exported most recently. It also prevents comparison, planning, and per-character history.
-
-**Recommendation:** make the watcher ingest into a roster keyed by realm + character, then let the user select/pin the active character. Show export age and bank-cache age. Never silently replace the active character after the user pins it.
+**Resolved July 12, 2026:** imports are retained by normalized realm + character key, the title bar exposes explicit selection and pinning, pinned characters are not silently replaced by newer watcher exports, and export/bank-cache freshness is visible. Existing single-character local storage migrates into the roster.
 
 ### H4. The release pipeline does not prove the packaged desktop app works — resolved
 
@@ -170,7 +166,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 ### Phase 2 — Hardcore companion advantage (2–4 weeks)
 
-1. Character roster with pinning, export age, and bank-cache freshness.
+1. ~~Character roster with pinning, export age, and bank-cache freshness.~~ — completed July 12, 2026.
 2. Saved loadouts and comparison views.
 3. “Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.
 4. Upgrade acquisition planner: route several upgrades together by zone/vendor/dungeon.
