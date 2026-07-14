@@ -5,10 +5,15 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## [0.5.0] — 2026-07-12
 
+### Companion desktop app — 2026-07-14
+- Added complete-loadout marginal scoring with conservative cap profiles, tooltip-first/verified-ID enchant resolution, and deterministic static set-threshold evaluation.
+- Finder explanations now expose cap assumptions, enchant treatment, and gained or lost set thresholds while leaving unknown or opaque effects neutral.
+- No addon export-schema change was required; existing exported `enchantId` and instance tooltip evidence drive enchant resolution.
+
 ### Companion desktop app — 2026-07-13
-+- Added Hardcore farming-risk model v2 with level-gated class escape tools, carried-consumable readiness, and cave, respawn, patrol, leash, and crowd-control constraints.
-+- Added item-data provenance diagnostics with source/version metadata, Classic Era scope, record-count validation, build age, and runtime SHA-256 verification.
-+- No addon export-schema change was required for this phase.
+- Added Hardcore farming-risk model v2 with level-gated class escape tools, carried-consumable readiness, and cave, respawn, patrol, leash, and crowd-control constraints.
+- Added item-data provenance diagnostics with source/version metadata, Classic Era scope, record-count validation, build age, and runtime SHA-256 verification.
+- No addon export-schema change was required for this phase.
 
 ### Added — Import + Equip (Phase 2, closes the AMR loop)
 - **Gear tab is live**: paste a setup string from the desktop app ("Send to Addon"), pick it from the setup list, review per-slot status (**E** equipped · **bag** · **bank** · **?** not found), then **Equip this setup** — swaps everything out of combat via `EquipItemByName`, with a summary line (already on / swapped / in bank / not found).

@@ -62,20 +62,18 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 ## 🟠 High priority
 
-### H1. Recommendation quality has a hard linear-EP ceiling
+### H1. Recommendation quality has a hard linear-EP ceiling — partially resolved
 
-**Verified evidence:** `upgradeEngine.ts:getItemScore()` multiplies each parsed stat by a fixed weight and sums it. The score has no stateful cap logic, proc/use modeling, set interactions, enchant contribution, rotation model, encounter duration, or uncertainty range.
+**Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; and deterministic static set thresholds are evaluated across loadout changes. Finder explanations expose the active cap assumption, effective capped delta, enchant treatment, and gained/lost set thresholds. Unknown enchants and opaque set effects remain visible but receive no invented value.
 
-**Impact:** recommendations can be directionally useful but cannot reliably match a simulator or mature optimizer. Hit beyond cap can be overvalued; on-use trinkets and set bonuses can be badly ranked; two items with identical static stats but very different effects collapse toward the same model.
+**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. Proc/on-use effects, conditional set effects, rotation and encounter duration, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled.
 
-**Recommendation:** build a layered evaluator:
+**Next steps:**
 
-1. Cap-aware marginal stat values (hit/defense and any class-specific breakpoints).
-2. Enchant contribution and “missing enchant” comparison.
-3. Proc/on-use effect registry with uptime and encounter-duration assumptions.
-4. Set-bonus graph evaluated across whole loadouts.
-5. A lightweight deterministic combat model for supported specs, with EP retained as fast fallback.
-6. Show confidence and assumptions, not a single unexplained score.
+1. Proc/on-use effect registry with explicit uptime and encounter-duration assumptions.
+2. Spec modules with deterministic rotation/encounter models and EP retained as a fallback.
+3. Expand cap/breakpoint profiles only where Classic Era evidence is supportable.
+4. Add confidence/sensitivity ranges and reproducible analysis snapshots.
 
 ### H2. ~~`SFSETUP1` carries enchant IDs but addon matching ignores them~~ — resolved
 
@@ -175,9 +173,9 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 ### Phase 3 — Optimization fidelity (4–8+ weeks, incremental)
 
-1. Cap-aware weights and constraints.
-2. Enchant library and scoring.
-3. Set-bonus/loadout graph.
+1. ~~Cap-aware weights and constraints.~~ — deterministic hit/defense cap profiles completed July 14, 2026; broader class-specific breakpoints remain incremental.
+2. ~~Enchant library and scoring.~~ — tooltip-first plus conservative verified-ID fallback completed July 14, 2026; unknown IDs remain neutral.
+3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
 4. Proc/on-use effect registry.
 5. Spec modules with deterministic rotation/encounter models.
 6. Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.
