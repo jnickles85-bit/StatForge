@@ -143,11 +143,11 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Recommendation:** before adding roster, loadouts, history, and simulation, separate domains: character repository, schema/import service, optimizer service, loadout service, and UI state. Use a small store only when the boundaries justify it; do not refactor solely for fashion.
 
-### M8. Item data provenance and reproducibility need stronger product treatment
+### M8. Item data provenance and reproducibility need stronger product treatment — resolved
 
-**Verified evidence:** a package-sourced item database is transformed locally, with project-specific Era heuristics documented in the previous audit. There is no visible data manifest/version in the UI.
+**Resolved July 13, 2026:** compact generation emits a sidecar manifest with the installed source package/version, parser version, Classic Era/phase scope, record count, Era cutoff, build timestamp, and SHA-256. Data Diagnostics compares the loaded record count and independently hashes the exact compact bytes at runtime. The UI distinguishes verified, warning, and error states and does not present compact-build age as upstream record freshness.
 
-**Recommendation:** ship a data manifest containing source package version, build timestamp, supported game build/phases, record count, parser version, and checksum. Surface it in About/Diagnostics. Prefer explicit phase/provenance data over ID heuristics as the dataset matures.
+**Remaining enhancement:** replace the project-specific Era item-ID cutoff when the source dataset provides complete explicit era provenance.
 
 ---
 
@@ -170,8 +170,8 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 2. ~~Saved loadouts and comparison views.~~ — completed July 12, 2026.
 3. ~~“Why this upgrade?” explanations: gains, losses, cap impact, source, risk, travel burden.~~ — completed July 13, 2026.
 4. ~~Upgrade acquisition planner: route several upgrades together by zone/vendor/dungeon.~~ — completed July 13, 2026.
-5. Hardcore risk model v2: escape toolkit, crowd-control immunity, caves, hyperspawns, patrol density, leash constraints, consumable readiness.
-6. Data freshness/provenance diagnostics.
+5. ~~Hardcore risk model v2: escape toolkit, crowd-control immunity, caves, hyperspawns, patrol density, leash constraints, consumable readiness.~~ — completed July 13, 2026.
+6. ~~Data freshness/provenance diagnostics.~~ — completed July 13, 2026.
 
 ### Phase 3 — Optimization fidelity (4–8+ weeks, incremental)
 
@@ -205,9 +205,9 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Hardcore risk model v2 + data provenance diagnostics | Deepens the product's local-first Hardcore advantage and trust |
-| 2 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
-| 3 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
+| 1 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
+| 2 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
+| 3 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
 
 ## Bottom line
 
