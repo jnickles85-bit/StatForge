@@ -5,6 +5,11 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## [0.5.0] — 2026-07-12
 
+### Companion desktop app — 2026-07-13
++- Added Hardcore farming-risk model v2 with level-gated class escape tools, carried-consumable readiness, and cave, respawn, patrol, leash, and crowd-control constraints.
++- Added item-data provenance diagnostics with source/version metadata, Classic Era scope, record-count validation, build age, and runtime SHA-256 verification.
++- No addon export-schema change was required for this phase.
+
 ### Added — Import + Equip (Phase 2, closes the AMR loop)
 - **Gear tab is live**: paste a setup string from the desktop app ("Send to Addon"), pick it from the setup list, review per-slot status (**E** equipped · **bag** · **bank** · **?** not found), then **Equip this setup** — swaps everything out of combat via `EquipItemByName`, with a summary line (already on / swapped / in bank / not found).
 - Setup string format `SFSETUP1;label;specId;mode;slot=itemId:suffixId:enchantId;...` — matching by itemId + suffixId + requested non-zero enchantId, so random-suffix and duplicate enchanted instances equip correctly. Setups persist per character in `StatForgeDB.gearSetups`.
