@@ -64,13 +64,13 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 ### H1. Recommendation quality has a hard linear-EP ceiling — partially resolved
 
-**Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; and deterministic static set thresholds are evaluated across loadout changes. Finder explanations expose the active cap assumption, effective capped delta, enchant treatment, and gained/lost set thresholds. Unknown enchants and opaque set effects remain visible but receive no invented value.
+**Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; deterministic static set thresholds are evaluated across loadout changes; and a curated effect registry converts fixed-duration/fixed-cooldown stat-use effects to encounter averages under a visible 180-second activation-on-pull profile. Finder explanations expose the active cap and encounter assumptions, effective capped delta, enchant treatment, gained/lost set thresholds, effect uptime, active time, and averaged stats. Unknown enchants, unregistered effects, nondeterministic procs, and opaque set effects remain visible or neutral without invented value.
 
-**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. Proc/on-use effects, conditional set effects, rotation and encounter duration, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled.
+**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter-specific durations, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled and are disclosed in the recommendation assumption.
 
 **Next steps:**
 
-1. Proc/on-use effect registry with explicit uptime and encounter-duration assumptions.
+1. Expand the effect registry only where tooltip evidence and deterministic timing support a non-guessed value.
 2. Spec modules with deterministic rotation/encounter models and EP retained as a fallback.
 3. Expand cap/breakpoint profiles only where Classic Era evidence is supportable.
 4. Add confidence/sensitivity ranges and reproducible analysis snapshots.
@@ -176,7 +176,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 1. ~~Cap-aware weights and constraints.~~ — deterministic hit/defense cap profiles completed July 14, 2026; broader class-specific breakpoints remain incremental.
 2. ~~Enchant library and scoring.~~ — tooltip-first plus conservative verified-ID fallback completed July 14, 2026; unknown IDs remain neutral.
 3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
-4. Proc/on-use effect registry.
+4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
 5. Spec modules with deterministic rotation/encounter models.
 6. Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.
 7. Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.
