@@ -7,20 +7,20 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. The biggest remaining gap is not visual polish: it is **recommendation fidelity**. Linear EP cannot yet model caps, effects, enchants, set bonuses, rotations, or encounter context well enough to compete with Raidbots/Ask Mr. Robot on optimization correctness.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, and initial Mage encounter modeling, but it remains a deterministic optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, Pareto tradeoff recommendations, reproducible analysis snapshots, and uncertainty/sensitivity analysis.
 
-There are **no verified release-blocking build or unit-test failures** in the app. There are, however, several high-priority product and correctness gaps and a broken lint gate.
+There are **no verified release-blocking build, lint, type-check, or unit-test failures** in the app. Live WoW behavior and packaged release behavior still require their documented release checks.
 
-## Verification snapshot
+## Verification snapshot — refreshed July 15, 2026
 
 | Check | Result |
 |---|---|
 | App branch/status | `master...origin/master`, clean |
-| Addon branch/status | `main...origin/main`, clean before this report |
-| App tests | **68/68 passed**, 7/7 files |
-| App production build | **passed**, 1,881 modules; JS 413.07 kB / 125.19 kB gzip |
-| TypeScript | **passed** as part of `npm run build` |
-| App lint | **failed**: ESLint has no configuration file |
+| Addon branch/status | `main...origin/main`; project-tracking documents may be pending until checkpointed |
+| App tests | **148/148 passed**, 21/21 files |
+| App production build | **passed**, 1,973 modules; JS 536.83 kB / 159.85 kB gzip |
+| TypeScript | **passed** both directly and as part of `npm run build` |
+| App lint | **passed** with zero warnings |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
 | GitHub CI | App runs data build + tsc + tests; addon runs luacheck |
@@ -66,12 +66,12 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; deterministic static set thresholds are evaluated across loadout changes; and a curated effect registry converts fixed-duration/fixed-cooldown stat-use effects to encounter averages under a visible 180-second activation-on-pull profile. Finder explanations expose the active cap and encounter assumptions, effective capped delta, enchant treatment, gained/lost set thresholds, effect uptime, active time, and averaged stats. Unknown enchants, unregistered effects, nondeterministic procs, and opaque set effects remain visible or neutral without invented value.
 
-**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter-specific durations, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled and are disclosed in the recommendation assumption.
+**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter mechanics beyond the current 30/180-second windows, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled and are disclosed in the recommendation assumption.
 
 **Next steps:**
 
 1. Expand the effect registry only where tooltip evidence and deterministic timing support a non-guessed value.
-2. Spec modules with deterministic rotation/encounter models and EP retained as a fallback.
+2. Extend the completed initial Mage modules to other classes/specs and richer encounter mechanics; retain EP as the explicit fallback.
 3. Expand cap/breakpoint profiles only where Classic Era evidence is supportable.
 4. Add confidence/sensitivity ranges and reproducible analysis snapshots.
 
@@ -198,15 +198,28 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 - **Shareable local analysis bundles** (no account upload required).
 - **Plugin-like spec model registry** so new specs/effects can be added and tested independently.
 
+## Project continuity and tracking
+
+Future work must use these repository records rather than relying on chat history:
+
+1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
+2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
+3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
+4. **`.hermes/plans/`** — actionable implementation plans for the next milestone. The current plan is `2026-07-15_100520-pareto-front-recommendations.md`.
+5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
+
+When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
+
 ---
 
 ## Recommended next order
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Cap-aware scoring + enchants + set bonuses | Highest recommendation-quality gain before full simulation |
-| 2 | Effect/rotation modules + confidence analysis | Path toward genuinely state-of-the-art optimization fidelity |
-| 3 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
+| 1 | Pareto-front recommendations | Exposes maximum-DPS, balanced, and maximum-survival tradeoffs instead of one scalar winner |
+| 2 | Reproducible snapshots + confidence/sensitivity analysis | Makes assumptions, model versions, and recommendation stability auditable |
+| 3 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally without pretending to be a full simulator |
+| 4 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
 
 ## Bottom line
 

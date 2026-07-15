@@ -5,6 +5,11 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-15
+- Added deterministic Mage Arcane, Fire, and Frost school models selected from exported talent-tab points, with ambiguous exports retaining the established fallback rather than guessing.
+- Added visible 30-second leveling and 180-second raid-boss encounter windows shared by owned-upgrade and Finder scoring.
+- No addon export-schema change was required; the existing optional `character.talentPoints` field supplies specialization evidence.
+
 ### Fixed
 - Gear setup matching now distinguishes a same-item/suffix copy with the wrong requested enchant from an item that is fully missing. The Gear tab shows `ench`, the equip summary reports a separate wrong-enchant count, and the addon never equips the mismatched copy.
 - Setup import now rejects a malformed non-empty gear token instead of silently dropping it from an otherwise valid setup.
