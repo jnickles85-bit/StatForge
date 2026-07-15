@@ -3,6 +3,16 @@
 All notable changes to the addon. See `AUDIT.md` for the full audit findings
 and remaining roadmap (covers both this repo and StatForge-App).
 
+## Unreleased
+
+### Fixed
+- Gear setup matching now distinguishes a same-item/suffix copy with the wrong requested enchant from an item that is fully missing. The Gear tab shows `ench`, the equip summary reports a separate wrong-enchant count, and the addon never equips the mismatched copy.
+- Setup import now rejects a malformed non-empty gear token instead of silently dropping it from an otherwise valid setup.
+
+### Testing
+- Expanded the Fengari WoW-API mock harness from 3 to 11 behavior tests covering real item-link fields, setup parsing, equipped/bag/closed-bank enchant matching, combat lockdown, equip decisions, bank-cache preservation, JSON escaping, suffix IDs, and bank freshness.
+- Added a repeatable in-game release matrix for bank events, logout persistence, UI lifecycle, tooltip scanning, enchant-specific setup matching, and sequential equipping.
+
 ## [0.5.0] — 2026-07-12
 
 ### Companion desktop app — 2026-07-14

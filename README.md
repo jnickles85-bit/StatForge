@@ -52,7 +52,7 @@ The addon writes snapshots to `StatForgeDB` in WoW's SavedVariables. It performs
 5. Paste the generated `SFSETUP1` string into the addon's **Gear** tab.
 6. Review item matches and equip the setup.
 
-Requested non-zero enchant IDs are matched across equipped gear, bags, the open bank, and the cached bank. Combat lockdown and unavailable items can prevent immediate equipping.
+Requested non-zero enchant IDs are matched across equipped gear, bags, the open bank, and the cached bank. A same-item copy with the wrong enchant is shown as `ench` instead of being reported as missing, and the equip summary keeps it separate from genuinely unavailable gear. Combat lockdown and unavailable items can prevent immediate equipping.
 
 ## Development and testing
 
@@ -63,7 +63,7 @@ npm install
 npm test
 ```
 
-Offline tests cannot certify WoW API behavior. Bank events, combat lockdown, UI lifecycle, tooltip behavior, and sequential equipping still require an in-game test pass.
+Offline tests cannot certify WoW API behavior. Bank events, logout persistence, UI lifecycle, tooltip behavior, and sequential equipping still require an in-game test pass. Use [`docs/MANUAL_TEST_MATRIX.md`](docs/MANUAL_TEST_MATRIX.md) to record that release gate.
 
 ## Compatibility and privacy
 

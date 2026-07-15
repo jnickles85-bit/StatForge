@@ -35,8 +35,12 @@ function SF.ParseSetupString(s)
   }
   local n = 0
   for i = 5, #parts do
-    local slot, item, suffix, ench = parts[i]:match("^(%d+)=(%-?%d+):(%-?%d+):(%-?%d+)$")
-    if slot then
+    local token = parts[i]:match("^%s*(.-)%s*$")
+    if token ~= "" then
+      local slot, item, suffix, ench = token:match("^(%d+)=(%-?%d+):(%-?%d+):(%-?%d+)$")
+      if not slot then
+        return nil, "invalid gear slot token: " .. token
+      end
       setup.slots[tonumber(slot)] = {
         itemId = tonumber(item),
         suffixId = tonumber(suffix) or 0,
@@ -64,13 +68,27 @@ local function linkMatches(link, want)
   return true
 end
 
---- Returns link, where ("bags"|"bank"|"bankClosed"|nil).
+local function linkHasWrongEnchant(link, want)
+  if not want.enchantId or want.enchantId == 0 then return false end
+  local p = SF.ParseItemLink(link)
+  if not p or p.itemId ~= want.itemId then return false end
+  if want.suffixId and want.suffixId ~= 0 and p.suffixId ~= want.suffixId then
+    return false
+  end
+  return p.enchantId ~= want.enchantId
+end
+
+--- Returns link, where ("bags"|"bank"|"bankClosed"|"wrongEnchant"|nil).
 function SF.FindItemForSetup(want)
+  local wrongEnchant = false
   for _, bag in ipairs(SF.PLAYER_BAGS) do
     for slot = 1, SF.NumSlots(bag) do
       local link = SF.ItemLinkAt(bag, slot)
       if link and linkMatches(link, want) then
         return link, "bags"
+      end
+      if link and linkHasWrongEnchant(link, want) then
+        wrongEnchant = true
       end
     end
   end
@@ -81,27 +99,39 @@ function SF.FindItemForSetup(want)
         if link and linkMatches(link, want) then
           return link, "bank"
         end
+        if link and linkHasWrongEnchant(link, want) then
+          wrongEnchant = true
+        end
       end
     end
   else
     local cache = StatForgeDB and StatForgeDB.bankCache and StatForgeDB.bankCache[SF.CharKey()]
     if cache and cache.items then
       for _, it in ipairs(cache.items) do
-        if it.itemId == want.itemId
-          and (not want.suffixId or want.suffixId == 0 or (it.suffixId or 0) == want.suffixId)
-          and (not want.enchantId or want.enchantId == 0 or (it.enchantId or 0) == want.enchantId) then
+        local sameItem = it.itemId == want.itemId
+        local sameSuffix = not want.suffixId or want.suffixId == 0 or (it.suffixId or 0) == want.suffixId
+        local sameEnchant = not want.enchantId or want.enchantId == 0 or (it.enchantId or 0) == want.enchantId
+        if sameItem and sameSuffix and sameEnchant then
           return nil, "bankClosed"
+        end
+        if sameItem and sameSuffix and want.enchantId and want.enchantId ~= 0 and not sameEnchant then
+          wrongEnchant = true
         end
       end
     end
   end
-  return nil, nil
+  return nil, wrongEnchant and "wrongEnchant" or nil
 end
 
 local function equippedMatches(slotId, want)
   local link = GetInventoryItemLink("player", slotId)
   if not link then return false end
   return linkMatches(link, want)
+end
+
+local function equippedHasWrongEnchant(slotId, want)
+  local link = GetInventoryItemLink("player", slotId)
+  return link and linkHasWrongEnchant(link, want) or false
 end
 
 -- ---------------------------------------------------------------------------
@@ -113,19 +143,22 @@ function SF.EquipSetup(setup)
     return
   end
   local alreadyOn, swapped = 0, 0
-  local inBank, missing = 0, 0
+  local inBank, wrongEnchant, missing = 0, 0, 0
   for _, slotId in ipairs(SF.GEAR_SLOT_ORDER) do
     local want = setup.slots[slotId]
     if want then
       if equippedMatches(slotId, want) then
         alreadyOn = alreadyOn + 1
       else
+        local equippedWrongEnchant = equippedHasWrongEnchant(slotId, want)
         local link, where = SF.FindItemForSetup(want)
         if link then
           EquipItemByName(link, slotId)
           swapped = swapped + 1
         elseif where == "bankClosed" then
           inBank = inBank + 1
+        elseif where == "wrongEnchant" or equippedWrongEnchant then
+          wrongEnchant = wrongEnchant + 1
         else
           missing = missing + 1
         end
@@ -134,6 +167,7 @@ function SF.EquipSetup(setup)
   end
   local msg = ('Equip "%s": %d already on, %d swapped'):format(setup.label, alreadyOn, swapped)
   if inBank > 0 then msg = msg .. (", %d in bank — visit a banker"):format(inBank) end
+  if wrongEnchant > 0 then msg = msg .. (", %d wrong enchant"):format(wrongEnchant) end
   if missing > 0 then msg = msg .. (", %d not found"):format(missing) end
   SF.Print(msg)
 end
@@ -366,11 +400,14 @@ local function render(parent)
       if equippedMatches(slotId, want) then
         status, statusColor = "E", "22c55e"
       else
+        local equippedWrongEnchant = equippedHasWrongEnchant(slotId, want)
         local link, where = SF.FindItemForSetup(want)
         if link then
           status, statusColor = "bag", "66fcf1"
         elseif where == "bankClosed" then
           status, statusColor = "bank", "f59e0b"
+        elseif where == "wrongEnchant" or equippedWrongEnchant then
+          status, statusColor = "ench", "f59e0b"
         else
           status, statusColor = "?", "ef4444"
         end
@@ -396,7 +433,7 @@ local function render(parent)
   end
 
   local legend = SF.UI_CreateLabel(card,
-    "|cff22c55eE|r equipped   |cff66fcf1bag|r in bags   |cfff59e0bbank|r in bank   |cffef4444?|r not found",
+    "|cff22c55eE|r equipped   |cff66fcf1bag|r in bags   |cfff59e0bbank|r in bank   |cfff59e0bench|r wrong enchant   |cffef4444?|r not found",
     "GameFontHighlightSmall")
   legend:SetPoint("BOTTOMLEFT", 16, 10)
   legend:SetTextColor(C.textDim[1], C.textDim[2], C.textDim[3])

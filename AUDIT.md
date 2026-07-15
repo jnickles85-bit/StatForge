@@ -46,7 +46,7 @@ There are **no verified release-blocking build or unit-test failures** in the ap
 - **Verified:** candidates are filtered by required level, class restrictions, weapon proficiency, and armor type.
 - **Verified:** bag and bank items are included in owned-upgrade analysis.
 - **Verified:** random-suffix item tooltips are captured by the addon and resolved by the app.
-- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; all 68 current tests pass.
+- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 141 passing tests and the addon mock harness has 11 passing behavior tests.
 
 ### ✅ Distinct product direction
 
@@ -77,11 +77,13 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 ### H2. ~~`SFSETUP1` carries enchant IDs but addon matching ignores them~~ — resolved
 
-**Resolved July 11, 2026:** addon matching now requires the requested non-zero enchant ID across equipped items, bags, open-bank scans, and the closed-bank cache. Two regression tests exercise duplicate bag copies and cached-bank mismatch behavior; CI runs them through Fengari.
+**Resolved July 11, 2026:** addon matching now requires the requested non-zero enchant ID across equipped items, bags, open-bank scans, and the closed-bank cache. Regression tests exercise duplicate bag copies and cached-bank mismatch behavior; CI runs them through Fengari.
+
+**Resolved July 15, 2026 (continued):** same-item/suffix copies with the wrong requested enchant now receive a distinct `ench` Gear status and wrong-enchant equip-summary count instead of appearing fully missing. The mismatched copy remains ineligible for equipping.
 
 **Former impact:** duplicate copies with different enchants could cause the addon to equip the wrong physical copy.
 
-**Remaining enhancement:** distinguish “same item, wrong enchant” from fully missing in the UI and add an instance discriminator where Classic item links permit one.
+**Remaining enhancement:** add an instance discriminator where Classic item links expose a stable, useful value.
 
 ### H3. No character roster; newest export silently wins — resolved
 
@@ -91,13 +93,11 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 12, 2026:** Windows CI now builds the production renderer, packages NSIS and unpacked artifacts, verifies the installer, smoke-launches the packaged executable, and uploads release artifacts. Code signing and controlled auto-update remain later ship-quality work.
 
-### H5. Live addon behavior is not covered by a repeatable test harness
+### H5. Live addon behavior is not covered by a repeatable test harness — resolved for offline-testable behavior
 
-**Verified evidence:** addon CI only runs luacheck. Core behavior depends on WoW globals and event order. This audit could not run luacheck locally because the command is missing, and it cannot exercise WoW APIs offline without mocks.
+**Resolved July 15, 2026:** addon CI runs a Fengari harness with WoW API stubs and 11 deterministic behavior tests. Coverage now includes real item-link enchant/suffix fields, strict setup parsing, exact and wrong-enchant matching across equipped items, bags, and the closed-bank cache, combat-lockdown blocking, equip-summary decisions, empty-scan bank-cache preservation, JSON escaping, suffix serialization, and bank freshness. `docs/MANUAL_TEST_MATRIX.md` supplies a repeatable release gate for bank-event order, logout persistence, tooltip scanning, UI lifecycle, enchant-specific setup matching, and sequential equips.
 
-**Impact:** bank caching, logout export, tooltip scanning, UI lifecycle, combat lockdown, and sequential equip behavior can regress despite green CI.
-
-**Recommendation:** introduce a Lua mock harness (WoW API stubs + fixtures) for link parsing, JSON escaping, bank-cache guards, setup parsing/matching, and equip decisions. Maintain a short manual in-game matrix for APIs that cannot be realistically mocked.
+**Remaining boundary:** offline mocks do not certify Blizzard API behavior in the live Classic client. The manual matrix must be executed and evidence recorded for release candidates; this audit has not marked those in-game checks as passed.
 
 ## 🟡 Medium priority
 
@@ -161,6 +161,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 4. ~~Fix enchant-aware setup matching.~~ — completed July 11, 2026.
 5. ~~Update both READMEs and versions.~~ — completed July 12, 2026.
 6. ~~Add Windows production build/package smoke CI.~~ — completed July 12, 2026.
+7. ~~Add an addon mock harness and repeatable in-game test matrix.~~ — completed July 15, 2026.
 
 ### Phase 2 — Hardcore companion advantage (2–4 weeks)
 
