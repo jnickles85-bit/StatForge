@@ -178,7 +178,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 2. ~~Enchant library and scoring.~~ — tooltip-first plus conservative verified-ID fallback completed July 14, 2026; unknown IDs remain neutral.
 3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
 4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
-5. Spec modules with deterministic rotation/encounter models.
+5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026; other classes and encounter mechanics remain incremental.
 6. Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.
 7. Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.
 
