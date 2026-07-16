@@ -8,6 +8,7 @@ and remaining roadmap (covers both this repo and StatForge-App).
 ### Companion desktop app — 2026-07-16
 - Added versioned reproducible Finder snapshots with exact imported character/loadout inputs, deterministic model-component and item-data SHA-256 identities, visible assumptions, and normalized objective-score breakdowns.
 - Snapshots remain local, support JSON save/export/import, and can replay their embedded character and settings with explicit exact, drifted, malformed, or incompatible outcomes.
+- Added deterministic confidence/sensitivity analysis over saved Pareto candidates using five disclosed DPS/survival trade-off lenses. Per-slot results identify Stable, Sensitive, and Model-limited recommendations with exact winner, objective-delta, and model-boundary evidence; the labels are not probabilities.
 - No addon export-schema change was required; the app embeds the existing validated `StatForge-v1` input inside its separate analysis-snapshot contract.
 
 ### Companion desktop app — 2026-07-15

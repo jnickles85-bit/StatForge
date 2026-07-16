@@ -7,20 +7,23 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, initial Mage encounter modeling, and Pareto DPS/survival tradeoff lenses, but it remains a deterministic optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, reproducible analysis snapshots, and uncertainty/sensitivity analysis.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, initial Mage encounter modeling, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec and encounter models, staged Electron/dependency hardening, and the live-WoW release matrix.
 
-There are **no verified release-blocking build, lint, type-check, or unit-test failures** in the app. Live WoW behavior and packaged release behavior still require their documented release checks.
+There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
-## Verification snapshot — refreshed July 15, 2026
+## Verification snapshot — refreshed July 16, 2026
 
 | Check | Result |
 |---|---|
-| App branch/status | `master...origin/master`; Pareto milestone included in this checkpoint |
-| Addon branch/status | `main...origin/main`; project tracking updated for the Pareto checkpoint |
-| App tests | **159/159 passed**, 22/22 files |
-| App production build | **passed**, 1,974 modules; JS 541.70 kB / 161.17 kB gzip |
+| App branch/status | `master...origin/master`; confidence/sensitivity milestone is an uncommitted working-tree tranche |
+| Addon branch/status | `main...origin/main`; tracking documentation is an uncommitted working-tree tranche |
+| App tests | **174/174 passed**, 25/25 files |
+| App production build | **passed**, 1,978 modules; JS 571.04 kB / 168.87 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
+| Windows package | **passed** for NSIS installer and unpacked directory |
+| Packaged smoke | **passed**; packaged StatForge remained running for the scripted 8-second gate |
+| Native Electron sensitivity UI | **passed** via the standalone renderer: 1 Stable / 13 Sensitive / 0 Model-limited across 14 populated slots in the exercised snapshot; exact winners and lenses rendered |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
 | GitHub CI | App runs data build + lint + tsc + tests + Windows packaging; addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
@@ -75,7 +78,7 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 1. Expand the effect registry only where tooltip evidence and deterministic timing support a non-guessed value.
 2. Extend the completed initial Mage modules to other classes/specs and richer encounter mechanics; retain EP as the explicit fallback.
 3. Expand cap/breakpoint profiles only where Classic Era evidence is supportable.
-4. Add confidence/sensitivity ranges and reproducible analysis snapshots.
+4. ~~Add confidence/sensitivity ranges and reproducible analysis snapshots.~~ — snapshots and five-lens deterministic objective sensitivity completed July 16, 2026; non-parameterized encounter/effect assumptions remain visible boundaries rather than guessed ranges.
 
 ### H2. ~~`SFSETUP1` carries enchant IDs but addon matching ignores them~~ — resolved
 
@@ -183,6 +186,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026; other classes and encounter mechanics remain incremental.
 6. ~~Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.~~ — completed July 15, 2026 with separate whole-loadout objectives, strict dominance filtering, disclosed normalized Balanced ranking, and deterministic planner integration.
 7. ~~Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.~~ — completed July 16, 2026 with a versioned `StatForgeAnalysisSnapshot` JSON contract, exact imported character/loadout inputs, deterministic component and item-data identities, visible assumptions, normalized objective breakdowns, local save/export/import, and exact replay comparison.
+8. ~~Confidence/sensitivity analysis over reproducible snapshots.~~ — completed July 16, 2026 with five disclosed DPS/survival lenses, deterministic tie-breaking, Stable/Sensitive/Model-limited classifications, original objective deltas, normalized lens-fit ranges, and explicit unmodeled candidate evidence. This is a trade-off stability report, not probabilistic simulation.
 
 ### Phase 4 — Ship-quality desktop application
 
@@ -195,7 +199,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 ### Phase 5 — Optional advanced differentiators
 
 - **Simulation worker threads/Web Workers** so deeper models never block the UI.
-- **Sensitivity analysis:** show which uncertain assumptions change the recommendation.
+- ~~**Sensitivity analysis:** show which objective trade-offs and supported model boundaries change the recommendation.~~ — completed July 16, 2026 over reproducible snapshots; richer parameterized encounter/effect sensitivity depends on future model modules.
 - **What-if planning:** level, talent, enchant, and future-item scenarios without mutating current gear.
 - **Shareable local analysis bundles** (no account upload required).
 - **Plugin-like spec model registry** so new specs/effects can be added and tested independently.
@@ -207,7 +211,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-16_063009-reproducible-analysis-snapshots.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-16_145631-confidence-sensitivity-analysis.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
@@ -218,10 +222,9 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Confidence/sensitivity analysis over reproducible snapshots | Shows which uncertain assumptions or model boundaries can change a recommendation |
-| 2 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally without pretending to be a full simulator |
-| 3 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
-| 4 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |
+| 1 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally and enables richer parameterized sensitivity without pretending to be a full simulator |
+| 2 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
+| 3 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |
 
 ## Bottom line
 
