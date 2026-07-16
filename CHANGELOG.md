@@ -10,6 +10,7 @@ and remaining roadmap (covers both this repo and StatForge-App).
 - Snapshots remain local, support JSON save/export/import, and can replay their embedded character and settings with explicit exact, drifted, malformed, or incompatible outcomes.
 - Added deterministic confidence/sensitivity analysis over saved Pareto candidates using five disclosed DPS/survival trade-off lenses. Per-slot results identify Stable, Sensitive, and Model-limited recommendations with exact winner, objective-delta, and model-boundary evidence; the labels are not probabilities.
 - No addon export-schema change was required; the app embeds the existing validated `StatForge-v1` input inside its separate analysis-snapshot contract.
+- Expanded the shared talent-tab model beyond Mage with deterministic Shadow Priest and Affliction Warlock school modules. Tied and unsupported tabs keep explicit base-preset fallbacks, and no addon export-schema change was required.
 
 ### Companion desktop app — 2026-07-15
 - Added non-dominated Finder recommendations with separate whole-loadout DPS and survival objectives plus Maximum DPS, normalized Balanced, and Maximum Survival lenses.
