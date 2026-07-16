@@ -15,13 +15,13 @@ This file is the cross-repository continuation index. It does not replace either
 ## Current checkpoint — July 16, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 179 tests across 25 files cover the confidence/sensitivity checkpoint and expanded caster school-module registry; full lint, TypeScript, and production build pass locally. The prior Windows packaging, packaged-app smoke, and standalone Electron sensitivity checks remain the latest desktop-runtime evidence because this tranche changes only the shared pure model and its rendered assumption text.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, and Elemental Shaman school modules, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
-- Current model boundary: this is not a combat simulator; nondeterministic procs, richer encounter mechanics, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
+- Desktop app: 183 tests across 25 files cover the confidence/sensitivity checkpoint, expanded caster school-module registry, and explicit encounter-profile flow; full lint, TypeScript, and production build pass locally. Standalone Electron verification confirms all four encounter options render, the Dungeon profile updates through React, persists locally, and restores after reload.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, and Elemental Shaman school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
+- Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Continue the deterministic class/spec tranche with the next evidence-supported modules and richer encounter profiles while retaining explicit fallback and model-boundary evidence.
+Continue the deterministic class/spec tranche with the next evidence-supported module while retaining explicit fallback and model-boundary evidence.
 
 Completed implementation plans retained for history:
 
@@ -30,6 +30,7 @@ Completed implementation plans retained for history:
 - [`.hermes/plans/2026-07-16_145631-confidence-sensitivity-analysis.md`](.hermes/plans/2026-07-16_145631-confidence-sensitivity-analysis.md)
 - [`.hermes/plans/2026-07-16_152821-caster-spec-encounter-modules.md`](.hermes/plans/2026-07-16_152821-caster-spec-encounter-modules.md)
 - [`.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md`](.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md)
+- [`.hermes/plans/2026-07-16_170041-explicit-encounter-profiles.md`](.hermes/plans/2026-07-16_170041-explicit-encounter-profiles.md)
 
 After extending deterministic class/spec and encounter modules:
 
