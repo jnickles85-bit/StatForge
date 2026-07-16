@@ -23,7 +23,7 @@ There are **no verified release-blocking build, lint, type-check, or unit-test f
 | App lint | **passed** with zero warnings |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
-| GitHub CI | App runs data build + tsc + tests; addon runs luacheck |
+| GitHub CI | App runs data build + lint + tsc + tests + Windows packaging; addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
 
 > Offline verification cannot replace live WoW validation. The addon shell, bank events, import dialog, and equip flow still need an in-game test matrix.
 

@@ -14,6 +14,7 @@ and remaining roadmap (covers both this repo and StatForge-App).
 - No addon export-schema change was required; the existing optional `character.talentPoints` field supplies specialization evidence.
 
 ### Fixed
+- GitHub CI now lets luacheck discover the repository's checked-in `.luacheckrc` instead of passing the local path to the action's URL-only `config` input.
 - Gear setup matching now distinguishes a same-item/suffix copy with the wrong requested enchant from an item that is fully missing. The Gear tab shows `ench`, the equip summary reports a separate wrong-enchant count, and the addon never equips the mismatched copy.
 - Setup import now rejects a malformed non-empty gear token instead of silently dropping it from an otherwise valid setup.
 

@@ -26,4 +26,3 @@ jobs:
         uses: nebularg/actions-luacheck@v1
         with:
           files: Constants.lua Snapshot.lua UI.lua ExportTab.lua GearTab.lua OptionsTab.lua Core.lua
-          config: .luacheckrc
