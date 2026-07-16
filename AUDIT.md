@@ -182,7 +182,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
 5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026; other classes and encounter mechanics remain incremental.
 6. ~~Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.~~ — completed July 15, 2026 with separate whole-loadout objectives, strict dominance filtering, disclosed normalized Balanced ranking, and deterministic planner integration.
-7. Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.
+7. ~~Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.~~ — completed July 16, 2026 with a versioned `StatForgeAnalysisSnapshot` JSON contract, exact imported character/loadout inputs, deterministic component and item-data identities, visible assumptions, normalized objective breakdowns, local save/export/import, and exact replay comparison.
 
 ### Phase 4 — Ship-quality desktop application
 
@@ -207,7 +207,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for the next milestone. The current plan is `2026-07-15_100520-pareto-front-recommendations.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-16_063009-reproducible-analysis-snapshots.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
@@ -218,7 +218,7 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Reproducible snapshots + confidence/sensitivity analysis | Makes assumptions, model versions, and recommendation stability auditable |
+| 1 | Confidence/sensitivity analysis over reproducible snapshots | Shows which uncertain assumptions or model boundaries can change a recommendation |
 | 2 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally without pretending to be a full simulator |
 | 3 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
 | 4 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |

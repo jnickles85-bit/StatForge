@@ -12,27 +12,27 @@ This file is the cross-repository continuation index. It does not replace either
 | [`.hermes/plans/`](.hermes/plans/) | Actionable plans for upcoming milestones |
 | [`docs/MANUAL_TEST_MATRIX.md`](docs/MANUAL_TEST_MATRIX.md) | Live Classic-client checks that offline automation cannot certify |
 
-## Current checkpoint — July 15, 2026
+## Current checkpoint — July 16, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 159 tests across 22 files; full lint, TypeScript, production build, and native Electron verification passed and are included in the current Pareto checkpoint.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, initial Mage Arcane/Fire/Frost encounter models, and Pareto DPS/survival recommendation lenses.
+- Desktop app: 168 tests across 24 files cover the current reproducible-snapshot checkpoint; full lint, TypeScript, production build, Windows packaging, packaged-app smoke, and native Electron replay verification passed.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, initial Mage Arcane/Fire/Frost encounter models, Pareto DPS/survival recommendation lenses, and versioned reproducible analysis snapshots.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, richer encounter mechanics, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Implement **Phase 3.7: reproducible analysis snapshots** containing the imported character/loadout inputs, deterministic model version, visible assumptions, and objective score breakdowns.
+Add **confidence/sensitivity analysis** over the reproducible snapshot contract so users can see which uncertain assumptions or supported model boundaries change a recommendation.
 
-Completed Pareto plan retained for implementation history:
+Completed implementation plans retained for history:
 
 - [`.hermes/plans/2026-07-15_100520-pareto-front-recommendations.md`](.hermes/plans/2026-07-15_100520-pareto-front-recommendations.md)
+- [`.hermes/plans/2026-07-16_063009-reproducible-analysis-snapshots.md`](.hermes/plans/2026-07-16_063009-reproducible-analysis-snapshots.md)
 
-After reproducible snapshots:
+After confidence/sensitivity analysis:
 
-1. Add confidence/sensitivity analysis.
-2. Extend deterministic class/spec and encounter modules.
-3. Harden Electron and modernize dependencies in staged branches.
-4. Execute and record the live-WoW manual release matrix.
+1. Extend deterministic class/spec and encounter modules.
+2. Harden Electron and modernize dependencies in staged branches.
+3. Execute and record the live-WoW manual release matrix.
 
 ## Closure checklist for every milestone
 

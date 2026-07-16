@@ -5,6 +5,11 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-16
+- Added versioned reproducible Finder snapshots with exact imported character/loadout inputs, deterministic model-component and item-data SHA-256 identities, visible assumptions, and normalized objective-score breakdowns.
+- Snapshots remain local, support JSON save/export/import, and can replay their embedded character and settings with explicit exact, drifted, malformed, or incompatible outcomes.
+- No addon export-schema change was required; the app embeds the existing validated `StatForge-v1` input inside its separate analysis-snapshot contract.
+
 ### Companion desktop app — 2026-07-15
 - Added non-dominated Finder recommendations with separate whole-loadout DPS and survival objectives plus Maximum DPS, normalized Balanced, and Maximum Survival lenses.
 - Recommendation explanations expose both objective deltas and the active lens; acquisition planning now follows the selected deterministic utility.
