@@ -13,6 +13,7 @@ and remaining roadmap (covers both this repo and StatForge-App).
 - Expanded the shared talent-tab model beyond Mage with deterministic Shadow Priest and Affliction Warlock school modules. Tied and unsupported tabs keep explicit base-preset fallbacks, and no addon export-schema change was required.
 - Added a dedicated Elemental Shaman caster preset and conservative Nature-school module. Only Elemental-dominant evidence activates it; tied or unsupported Shaman tabs retain explicit fallback behavior, and no addon export-schema change was required.
 - Added explicit Automatic, Solo (30s), Dungeon boss (90s), and Raid boss (180s) encounter profiles to the companion app. The selected duration drives deterministic on-use uptime in both owned and Finder analyses, persists locally, and is embedded in reproducible snapshots; no addon export-schema change was required.
+- Hardened the companion app's Electron development lifecycle with a strict Vite port contract. A port-5173 collision now stops the coupled launcher instead of moving Vite to 5174 and leaving Electron to poll a dead renderer URL; no addon export-schema change was required.
 
 ### Companion desktop app — 2026-07-15
 - Added non-dominated Finder recommendations with separate whole-loadout DPS and survival objectives plus Maximum DPS, normalized Balanced, and Maximum Survival lenses.

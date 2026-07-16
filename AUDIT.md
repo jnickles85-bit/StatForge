@@ -195,6 +195,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 3. Offline-first icon/data cache status.
 4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels.
 5. Performance budgets and list virtualization based on measured traces.
+6. ~~Harden the Electron development lifecycle against renderer-port drift and orphaned processes.~~ — completed July 16, 2026. Vite now refuses to move off port 5173, and the coupled launcher closes Electron when renderer startup fails; a regression test preserves the strict-port contract.
 
 ### Phase 5 — Optional advanced differentiators
 
