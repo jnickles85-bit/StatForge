@@ -15,25 +15,24 @@ This file is the cross-repository continuation index. It does not replace either
 ## Current checkpoint — July 15, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 148 tests across 21 files; lint, TypeScript, and production build pass.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, and initial Mage Arcane/Fire/Frost encounter models.
+- Desktop app: 159 tests across 22 files; full lint, TypeScript, production build, and native Electron verification passed and are included in the current Pareto checkpoint.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, initial Mage Arcane/Fire/Frost encounter models, and Pareto DPS/survival recommendation lenses.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, richer encounter mechanics, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Implement **Phase 3.6: Pareto-front recommendations** so the Finder can present Maximum DPS, Balanced, and Maximum Survival views over the same non-dominated candidate set.
+Implement **Phase 3.7: reproducible analysis snapshots** containing the imported character/loadout inputs, deterministic model version, visible assumptions, and objective score breakdowns.
 
-Detailed plan:
+Completed Pareto plan retained for implementation history:
 
 - [`.hermes/plans/2026-07-15_100520-pareto-front-recommendations.md`](.hermes/plans/2026-07-15_100520-pareto-front-recommendations.md)
 
-After Pareto recommendations:
+After reproducible snapshots:
 
-1. Add reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdowns.
-2. Add confidence/sensitivity analysis.
-3. Extend deterministic class/spec and encounter modules.
-4. Harden Electron and modernize dependencies in staged branches.
-5. Execute and record the live-WoW manual release matrix.
+1. Add confidence/sensitivity analysis.
+2. Extend deterministic class/spec and encounter modules.
+3. Harden Electron and modernize dependencies in staged branches.
+4. Execute and record the live-WoW manual release matrix.
 
 ## Closure checklist for every milestone
 

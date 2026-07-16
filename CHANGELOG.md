@@ -6,6 +6,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 ## Unreleased
 
 ### Companion desktop app — 2026-07-15
+- Added non-dominated Finder recommendations with separate whole-loadout DPS and survival objectives plus Maximum DPS, normalized Balanced, and Maximum Survival lenses.
+- Recommendation explanations expose both objective deltas and the active lens; acquisition planning now follows the selected deterministic utility.
+- No addon export-schema change was required; the desktop app evaluates both objectives from the existing snapshot.
 - Added deterministic Mage Arcane, Fire, and Frost school models selected from exported talent-tab points, with ambiguous exports retaining the established fallback rather than guessing.
 - Added visible 30-second leveling and 180-second raid-boss encounter windows shared by owned-upgrade and Finder scoring.
 - No addon export-schema change was required; the existing optional `character.talentPoints` field supplies specialization evidence.

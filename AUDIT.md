@@ -7,7 +7,7 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, and initial Mage encounter modeling, but it remains a deterministic optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, Pareto tradeoff recommendations, reproducible analysis snapshots, and uncertainty/sensitivity analysis.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, initial Mage encounter modeling, and Pareto DPS/survival tradeoff lenses, but it remains a deterministic optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, reproducible analysis snapshots, and uncertainty/sensitivity analysis.
 
 There are **no verified release-blocking build, lint, type-check, or unit-test failures** in the app. Live WoW behavior and packaged release behavior still require their documented release checks.
 
@@ -15,10 +15,10 @@ There are **no verified release-blocking build, lint, type-check, or unit-test f
 
 | Check | Result |
 |---|---|
-| App branch/status | `master...origin/master`, clean |
-| Addon branch/status | `main...origin/main`; project-tracking documents may be pending until checkpointed |
-| App tests | **148/148 passed**, 21/21 files |
-| App production build | **passed**, 1,973 modules; JS 536.83 kB / 159.85 kB gzip |
+| App branch/status | `master...origin/master`; Pareto milestone included in this checkpoint |
+| Addon branch/status | `main...origin/main`; project tracking updated for the Pareto checkpoint |
+| App tests | **159/159 passed**, 22/22 files |
+| App production build | **passed**, 1,974 modules; JS 541.70 kB / 161.17 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
@@ -46,7 +46,7 @@ There are **no verified release-blocking build, lint, type-check, or unit-test f
 - **Verified:** candidates are filtered by required level, class restrictions, weapon proficiency, and armor type.
 - **Verified:** bag and bank items are included in owned-upgrade analysis.
 - **Verified:** random-suffix item tooltips are captured by the addon and resolved by the app.
-- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 141 passing tests and the addon mock harness has 11 passing behavior tests.
+- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 159 passing tests and the addon mock harness has 11 passing behavior tests.
 
 ### ✅ Distinct product direction
 
@@ -67,6 +67,8 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 **Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; deterministic static set thresholds are evaluated across loadout changes; and a curated effect registry converts fixed-duration/fixed-cooldown stat-use effects to encounter averages under a visible 180-second activation-on-pull profile. Finder explanations expose the active cap and encounter assumptions, effective capped delta, enchant treatment, gained/lost set thresholds, effect uptime, active time, and averaged stats. Unknown enchants, unregistered effects, nondeterministic procs, and opaque set effects remain visible or neutral without invented value.
 
 **Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter mechanics beyond the current 30/180-second windows, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled and are disclosed in the recommendation assumption.
+
+**Resolved July 15, 2026 (Pareto slice):** Finder replacements are independently evaluated under whole-loadout DPS and survival objectives. Strictly dominated alternatives are removed; Maximum DPS and Maximum Survival rank their named objectives, while Balanced uses equal-weight per-slot min-max normalization and distance to the ideal point with deterministic tie-breaking. The UI exposes both deltas and explicitly avoids calling Balanced universally optimal. The acquisition planner consumes the selected lens utility without changing source-grouping semantics.
 
 **Next steps:**
 
@@ -179,7 +181,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
 4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
 5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026; other classes and encounter mechanics remain incremental.
-6. Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.
+6. ~~Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.~~ — completed July 15, 2026 with separate whole-loadout objectives, strict dominance filtering, disclosed normalized Balanced ranking, and deterministic planner integration.
 7. Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.
 
 ### Phase 4 — Ship-quality desktop application
@@ -216,10 +218,10 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Pareto-front recommendations | Exposes maximum-DPS, balanced, and maximum-survival tradeoffs instead of one scalar winner |
-| 2 | Reproducible snapshots + confidence/sensitivity analysis | Makes assumptions, model versions, and recommendation stability auditable |
-| 3 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally without pretending to be a full simulator |
-| 4 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
+| 1 | Reproducible snapshots + confidence/sensitivity analysis | Makes assumptions, model versions, and recommendation stability auditable |
+| 2 | Extend deterministic class/spec and encounter modules | Improves fidelity incrementally without pretending to be a full simulator |
+| 3 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
+| 4 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |
 
 ## Bottom line
 
