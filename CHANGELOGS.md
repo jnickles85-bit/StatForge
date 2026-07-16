@@ -15,8 +15,8 @@ This file is the cross-repository continuation index. It does not replace either
 ## Current checkpoint — July 16, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 177 tests across 25 files cover the confidence/sensitivity checkpoint and expanded caster school-module registry; full lint, TypeScript, and production build pass locally. The prior Windows packaging, packaged-app smoke, and standalone Electron sensitivity checks remain the latest desktop-runtime evidence because this tranche changes only the shared pure model and its rendered assumption text.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, and Affliction Warlock school modules, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
+- Desktop app: 179 tests across 25 files cover the confidence/sensitivity checkpoint and expanded caster school-module registry; full lint, TypeScript, and production build pass locally. The prior Windows packaging, packaged-app smoke, and standalone Electron sensitivity checks remain the latest desktop-runtime evidence because this tranche changes only the shared pure model and its rendered assumption text.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, and Elemental Shaman school modules, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, richer encounter mechanics, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
@@ -29,6 +29,7 @@ Completed implementation plans retained for history:
 - [`.hermes/plans/2026-07-16_063009-reproducible-analysis-snapshots.md`](.hermes/plans/2026-07-16_063009-reproducible-analysis-snapshots.md)
 - [`.hermes/plans/2026-07-16_145631-confidence-sensitivity-analysis.md`](.hermes/plans/2026-07-16_145631-confidence-sensitivity-analysis.md)
 - [`.hermes/plans/2026-07-16_152821-caster-spec-encounter-modules.md`](.hermes/plans/2026-07-16_152821-caster-spec-encounter-modules.md)
+- [`.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md`](.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md)
 
 After extending deterministic class/spec and encounter modules:
 
