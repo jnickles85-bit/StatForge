@@ -11,19 +11,19 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
-## Verification snapshot — refreshed July 16, 2026
+## Verification snapshot — refreshed July 17, 2026
 
 | Check | Result |
 |---|---|
-| App branch/status | `master...origin/master`; confidence/sensitivity milestone is an uncommitted working-tree tranche |
-| Addon branch/status | `main...origin/main`; tracking documentation is an uncommitted working-tree tranche |
-| App tests | **174/174 passed**, 25/25 files |
-| App production build | **passed**, 1,978 modules; JS 571.04 kB / 168.87 kB gzip |
+| App branch/status | `master`; Retribution Paladin school-module milestone verified July 17, 2026 |
+| Addon branch/status | `main`; companion tracking documentation and implementation plan updated for the July 17 milestone |
+| App tests | **185/185 passed**, 26/26 files |
+| App production build | **passed**, 1,978 modules; JS 573.38 kB / 169.38 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
 | Windows package | **passed** for NSIS installer and unpacked directory |
 | Packaged smoke | **passed**; packaged StatForge remained running for the scripted 8-second gate |
-| Native Electron sensitivity UI | **passed** via the standalone renderer: 1 Stable / 13 Sensitive / 0 Model-limited across 14 populated slots in the exercised snapshot; exact winners and lenses rendered |
+| Native Electron sensitivity UI | **passed July 16** via the standalone renderer for the prior UI tranche; the July 17 Retribution change is domain-only and introduces no new UI control or layout |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
 | GitHub CI | App runs data build + lint + tsc + tests + Windows packaging; addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
@@ -49,7 +49,7 @@ There are **no verified release-blocking build, lint, type-check, unit-test, Win
 - **Verified:** candidates are filtered by required level, class restrictions, weapon proficiency, and armor type.
 - **Verified:** bag and bank items are included in owned-upgrade analysis.
 - **Verified:** random-suffix item tooltips are captured by the addon and resolved by the app.
-- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 159 passing tests and the addon mock harness has 11 passing behavior tests.
+- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 185 passing tests and the addon mock harness has 11 passing behavior tests.
 
 ### ✅ Distinct product direction
 
@@ -183,7 +183,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 2. ~~Enchant library and scoring.~~ — tooltip-first plus conservative verified-ID fallback completed July 14, 2026; unknown IDs remain neutral.
 3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
 4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
-5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026. A declarative registry plus conservative Shadow Priest, Affliction Warlock, and Elemental Shaman school modules followed July 16. Explicit Automatic, Solo (30s), Dungeon boss (90s), and Raid boss (180s) profiles now drive duration-sensitive effect uptime in both analysis paths and reproducible snapshots. Unsupported tabs, other classes, and encounter mechanics beyond duration remain incremental.
+5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026. A declarative registry plus conservative Shadow Priest, Affliction Warlock, and Elemental Shaman school modules followed July 16; Retribution Paladin Holy-school inference followed July 17 while preserving the hybrid preset's physical weights. Explicit Automatic, Solo (30s), Dungeon boss (90s), and Raid boss (180s) profiles drive duration-sensitive effect uptime in both analysis paths and reproducible snapshots. These are school boundaries rather than complete rotations; unsupported tabs, other classes, and encounter mechanics beyond duration remain incremental.
 6. ~~Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.~~ — completed July 15, 2026 with separate whole-loadout objectives, strict dominance filtering, disclosed normalized Balanced ranking, and deterministic planner integration.
 7. ~~Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.~~ — completed July 16, 2026 with a versioned `StatForgeAnalysisSnapshot` JSON contract, exact imported character/loadout inputs, deterministic component and item-data identities, visible assumptions, normalized objective breakdowns, local save/export/import, and exact replay comparison.
 8. ~~Confidence/sensitivity analysis over reproducible snapshots.~~ — completed July 16, 2026 with five disclosed DPS/survival lenses, deterministic tie-breaking, Stable/Sensitive/Model-limited classifications, original objective deltas, normalized lens-fit ranges, and explicit unmodeled candidate evidence. This is a trade-off stability report, not probabilistic simulation.
@@ -212,7 +212,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-16_170041-explicit-encounter-profiles.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-17_141816-retribution-paladin-school-module.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
