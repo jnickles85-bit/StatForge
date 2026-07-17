@@ -15,13 +15,13 @@ This file is the cross-repository continuation index. It does not replace either
 ## Current checkpoint — July 17, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 185 tests across 26 files pass after adding a conservative Retribution Paladin Holy-school boundary while preserving the existing hybrid physical weights. Retribution-dominant talent evidence activates it; tied, Holy, and Protection evidence retain the explicit base-preset fallback. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, and Retribution Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
+- Desktop app: 186 tests across 26 files pass after adding a conservative Protection Paladin Holy-school boundary while preserving the existing hybrid preset's non-school weights. Protection-dominant talent evidence activates it; tied, Holy, and Retribution evidence retain the explicit base-preset fallback. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, Retribution Paladin, and Protection Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Continue the deterministic class/spec tranche with the next evidence-supported module while retaining explicit fallback and model-boundary evidence.
+Continue the deterministic class/spec and encounter tranche only where exported evidence supports another conservative module; otherwise move to a richer explicit encounter profile without claiming a full simulator.
 
 Completed implementation plans retained for history:
 
@@ -32,9 +32,10 @@ Completed implementation plans retained for history:
 - [`.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md`](.hermes/plans/2026-07-16_161311-elemental-shaman-school-module.md)
 - [`.hermes/plans/2026-07-16_170041-explicit-encounter-profiles.md`](.hermes/plans/2026-07-16_170041-explicit-encounter-profiles.md)
 
-Latest completed implementation plan:
+Latest completed implementation plans:
 
 - [`.hermes/plans/2026-07-17_141816-retribution-paladin-school-module.md`](.hermes/plans/2026-07-17_141816-retribution-paladin-school-module.md)
+- [`.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md`](.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md)
 
 After extending deterministic class/spec and encounter modules:
 
