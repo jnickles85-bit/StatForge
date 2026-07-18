@@ -7,23 +7,23 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, initial Mage encounter modeling, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec and encounter models, staged Electron/dependency hardening, and the live-WoW release matrix.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, staged Electron/dependency hardening, and the live-WoW release matrix.
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
-## Verification snapshot — refreshed July 17, 2026
+## Verification snapshot — refreshed July 18, 2026
 
 | Check | Result |
 |---|---|
-| App branch/status | `master`; Protection Paladin school-module milestone verified July 17, 2026 |
-| Addon branch/status | `main`; companion tracking documentation and implementation plan updated for the July 17 Protection milestone |
-| App tests | **186/186 passed**, 26/26 files |
-| App production build | **passed**, 1,978 modules; JS 573.52 kB / 169.41 kB gzip |
+| App branch/status | `master`; custom encounter-duration milestone verified July 18, 2026 |
+| Addon branch/status | `main`; companion tracking documentation and implementation plan updated for the July 18 custom-duration milestone |
+| App tests | **190/190 passed**, 26/26 files |
+| App production build | **passed**, 1,978 modules; JS 575.05 kB / 169.81 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
 | Windows package | **passed** for NSIS installer and unpacked directory |
 | Packaged smoke | **passed**; packaged StatForge remained running for the scripted 8-second gate |
-| Native Electron sensitivity UI | **passed July 16** via the standalone renderer for the prior UI tranche; the July 17 Protection change is domain-only and introduces no new UI control or layout |
+| Native Electron custom-duration UI | **passed July 18** via the standalone renderer: Custom selection, 75-second entry, 5/3,600-second bounds, local persistence, and renderer reload restoration verified |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
 | GitHub CI | App runs data build + lint + tsc + tests + Windows packaging; addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
@@ -49,7 +49,7 @@ There are **no verified release-blocking build, lint, type-check, unit-test, Win
 - **Verified:** candidates are filtered by required level, class restrictions, weapon proficiency, and armor type.
 - **Verified:** bag and bank items are included in owned-upgrade analysis.
 - **Verified:** random-suffix item tooltips are captured by the addon and resolved by the app.
-- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 185 passing tests and the addon mock harness has 11 passing behavior tests.
+- **Verified:** the most correctness-sensitive engine code has meaningful unit coverage; the desktop app has 190 passing tests and the addon mock harness has 11 passing behavior tests.
 
 ### ✅ Distinct product direction
 
@@ -67,9 +67,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 ### H1. Recommendation quality has a hard linear-EP ceiling — partially resolved
 
-**Resolved July 14, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; deterministic static set thresholds are evaluated across loadout changes; and a curated effect registry converts fixed-duration/fixed-cooldown stat-use effects to encounter averages under a visible 180-second activation-on-pull profile. Finder explanations expose the active cap and encounter assumptions, effective capped delta, enchant treatment, gained/lost set thresholds, effect uptime, active time, and averaged stats. Unknown enchants, unregistered effects, nondeterministic procs, and opaque set effects remain visible or neutral without invented value.
+**Resolved July 14–18, 2026:** owned and obtainable upgrade paths now score marginal changes against the complete equipped loadout. Conservative spec/mode cap profiles reduce only hit or defense gained beyond a modeled cap; equipped enchants resolve from exported tooltip evidence or a verified Classic ID library; deterministic static set thresholds are evaluated across loadout changes; and a curated effect registry converts fixed-duration/fixed-cooldown stat-use effects to encounter averages under visible Automatic, Solo, Dungeon-boss, Raid-boss, and bounded Custom activation-on-pull windows. Finder explanations expose the active cap and encounter assumptions, effective capped delta, enchant treatment, gained/lost set thresholds, effect uptime, active time, and averaged stats. Unknown enchants, unregistered effects, nondeterministic procs, and opaque set effects remain visible or neutral without invented value.
 
-**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter mechanics beyond the current 30/180-second windows, broader class-specific breakpoints, and uncertainty/sensitivity analysis remain unmodeled and are disclosed in the recommendation assumption.
+**Remaining impact:** this is a stronger deterministic optimizer, not a combat simulator. The registry intentionally models only supportable deterministic stat-use effects. Registered items are modeled independently; shared cooldown/timing conflicts, nondeterministic procs, conditional set effects, rotation-specific timing, encounter mechanics beyond the selected deterministic duration, and broader class-specific breakpoints remain unmodeled and are disclosed in the recommendation assumption.
 
 **Resolved July 15, 2026 (Pareto slice):** Finder replacements are independently evaluated under whole-loadout DPS and survival objectives. Strictly dominated alternatives are removed; Maximum DPS and Maximum Survival rank their named objectives, while Balanced uses equal-weight per-slot min-max normalization and distance to the ideal point with deterministic tie-breaking. The UI exposes both deltas and explicitly avoids calling Balanced universally optimal. The acquisition planner consumes the selected lens utility without changing source-grouping semantics.
 
@@ -183,7 +183,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 2. ~~Enchant library and scoring.~~ — tooltip-first plus conservative verified-ID fallback completed July 14, 2026; unknown IDs remain neutral.
 3. ~~Set-bonus/loadout graph.~~ — deterministic static thresholds completed July 14, 2026; opaque/conditional effects remain for the effect registry.
 4. ~~Proc/on-use effect registry.~~ — curated deterministic stat-use effects completed July 14, 2026 with a visible 180-second profile; nondeterministic and unsupported effects remain neutral.
-5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026. A declarative registry plus conservative Shadow Priest, Affliction Warlock, and Elemental Shaman school modules followed July 16; Retribution and Protection Paladin Holy-school inference followed July 17 while preserving each hybrid preset's non-school weights. Explicit Automatic, Solo (30s), Dungeon boss (90s), and Raid boss (180s) profiles drive duration-sensitive effect uptime in both analysis paths and reproducible snapshots. These are school boundaries rather than complete rotations or threat simulations; unsupported tabs, other classes, and encounter mechanics beyond duration remain incremental.
+5. Spec modules with deterministic rotation/encounter models. — Mage Arcane/Fire/Frost school-damage modules and level-sensitive 30-second leveling / 180-second raid encounter windows completed July 15, 2026. A declarative registry plus conservative Shadow Priest, Affliction Warlock, and Elemental Shaman school modules followed July 16; Retribution and Protection Paladin Holy-school inference followed July 17 while preserving each hybrid preset's non-school weights. Explicit Automatic, Solo (30s), Dungeon boss (90s), Raid boss (180s), and bounded Custom (5–3,600s) profiles now drive duration-sensitive effect uptime in both analysis paths and reproducible snapshots. Custom duration was completed July 18 with local persistence and standalone Electron verification. These are school and deterministic-duration boundaries rather than complete rotations or threat simulations; unsupported tabs, other classes, and encounter mechanics beyond duration remain incremental.
 6. ~~Pareto-front recommendations: maximum DPS, balanced, and maximum survival rather than one scalar winner.~~ — completed July 15, 2026 with separate whole-loadout objectives, strict dominance filtering, disclosed normalized Balanced ranking, and deterministic planner integration.
 7. ~~Reproducible analysis snapshots containing inputs, model version, assumptions, and score breakdown.~~ — completed July 16, 2026 with a versioned `StatForgeAnalysisSnapshot` JSON contract, exact imported character/loadout inputs, deterministic component and item-data identities, visible assumptions, normalized objective breakdowns, local save/export/import, and exact replay comparison.
 8. ~~Confidence/sensitivity analysis over reproducible snapshots.~~ — completed July 16, 2026 with five disclosed DPS/survival lenses, deterministic tie-breaking, Stable/Sensitive/Model-limited classifications, original objective deltas, normalized lens-fit ranges, and explicit unmodeled candidate evidence. This is a trade-off stability report, not probabilistic simulation.
@@ -212,7 +212,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-17_181741-protection-paladin-school-module.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-17_184001-custom-encounter-duration.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
@@ -223,8 +223,8 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Continue deterministic class/spec and encounter modules | Extend the registry only where exported evidence supports the model, then add richer explicit encounter profiles without pretending to be a full simulator |
-| 2 | Electron hardening and staged dependency modernization | Reduces security/support debt without a risky all-at-once upgrade |
+| 1 | Electron hardening and staged dependency modernization | Custom duration completes the planned deterministic encounter-window tranche; reduce security/support debt without a risky all-at-once upgrade |
+| 2 | Continue deterministic class/spec modules only with evidence | Extend the registry only where exported evidence supports another conservative model without pretending to be a full simulator |
 | 3 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |
 
 ## Bottom line

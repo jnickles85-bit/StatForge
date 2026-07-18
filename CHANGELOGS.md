@@ -12,16 +12,16 @@ This file is the cross-repository continuation index. It does not replace either
 | [`.hermes/plans/`](.hermes/plans/) | Actionable plans for upcoming milestones |
 | [`docs/MANUAL_TEST_MATRIX.md`](docs/MANUAL_TEST_MATRIX.md) | Live Classic-client checks that offline automation cannot certify |
 
-## Current checkpoint — July 17, 2026
+## Current checkpoint — July 18, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 186 tests across 26 files pass after adding a conservative Protection Paladin Holy-school boundary while preserving the existing hybrid preset's non-school weights. Protection-dominant talent evidence activates it; tied, Holy, and Retribution evidence retain the explicit base-preset fallback. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, Retribution Paladin, and Protection Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
+- Desktop app: 190 tests across 26 files pass after adding a bounded Custom encounter duration shared by owned-item and Finder scoring. The 5–3,600-second whole-second value persists locally, round-trips through reproducible snapshots, and was exercised at 75 seconds in the standalone Electron renderer including bounds and reload restoration. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, Retribution Paladin, and Protection Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss/Custom effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Continue the deterministic class/spec and encounter tranche only where exported evidence supports another conservative module; otherwise move to a richer explicit encounter profile without claiming a full simulator.
+Move to staged Electron hardening and dependency modernization. Add further class/spec modules only where exported evidence supports a conservative model; do not infer additional encounter mechanics from duration.
 
 Completed implementation plans retained for history:
 
@@ -36,8 +36,9 @@ Latest completed implementation plans:
 
 - [`.hermes/plans/2026-07-17_141816-retribution-paladin-school-module.md`](.hermes/plans/2026-07-17_141816-retribution-paladin-school-module.md)
 - [`.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md`](.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md)
+- [`.hermes/plans/2026-07-17_184001-custom-encounter-duration.md`](.hermes/plans/2026-07-17_184001-custom-encounter-duration.md)
 
-After extending deterministic class/spec and encounter modules:
+Next sequencing:
 
 1. Harden Electron and modernize dependencies in staged branches.
 2. Execute and record the live-WoW manual release matrix.

@@ -5,6 +5,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-18
+- Added a bounded Custom encounter duration to the companion app. The persisted whole-second value drives the same deterministic effect-uptime window in owned and Finder analysis, round-trips through reproducible snapshots, and does not infer rotations or additional encounter mechanics; no addon export-schema change was required.
+
 ### Companion desktop app — 2026-07-16
 - Added versioned reproducible Finder snapshots with exact imported character/loadout inputs, deterministic model-component and item-data SHA-256 identities, visible assumptions, and normalized objective-score breakdowns.
 - Snapshots remain local, support JSON save/export/import, and can replay their embedded character and settings with explicit exact, drifted, malformed, or incompatible outcomes.
