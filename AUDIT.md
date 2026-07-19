@@ -193,7 +193,9 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 1. Signed NSIS installer and controlled auto-update.
 2. Crash/error diagnostics that remain local-first and opt-in.
 3. Offline-first icon/data cache status.
-4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels.
+4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels — partially resolved
+   - **Resolved July 18, 2026:** skip-to-content link, ARIA landmarks (header, nav, main), sidebar tab labels with `aria-current`, decorative icons marked `aria-hidden`, `focus-visible:ring` on all interactive elements, `prefers-reduced-motion` support (both framer-motion and CSS), screen-reader-only utility class, focus management on tab change. Commit `f3f1e68`.
+   - **Remaining:** audit individual component panels for contrast ratios against WCAG AA, add aria-live regions for dynamic content (import success/error, snapshot saves), review screen-reader labels in UpgradesPanel/FarmingPanel icon-only buttons.
 5. Performance budgets and list virtualization based on measured traces.
 6. ~~Harden the Electron development lifecycle against renderer-port drift and orphaned processes.~~ — completed July 16, 2026. Vite now refuses to move off port 5173, and the coupled launcher closes Electron when renderer startup fails; a regression test preserves the strict-port contract.
 
