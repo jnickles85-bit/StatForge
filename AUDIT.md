@@ -191,7 +191,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 ### Phase 4 — Ship-quality desktop application
 
 1. Signed NSIS installer and controlled auto-update.
-2. Crash/error diagnostics that remain local-first and opt-in.
+2. ~~Crash/error diagnostics that remain local-first and opt-in.~~ — **completed July 19, 2026.** Opt-in error log captures React component errors, unhandled promise rejections, and app errors to a bounded localStorage ring buffer (last 50). `ErrorBoundary` wraps the app and shows a friendly reload fallback. Global `window.onerror` / `unhandledrejection` handlers wired at startup. The Diagnostics panel exposes the log with per-error expand/collapse, stack traces, clear-all, and per-error delete. 15 tests cover the ring buffer, opt-in toggle, error kinds, and graceful storage-failure handling. Local-first by design — no network calls, no PII.
 3. Offline-first icon/data cache status.
 4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels — partially resolved
    - **Resolved July 18, 2026:** skip-to-content link, ARIA landmarks (header, nav, main), sidebar tab labels with `aria-current`, decorative icons marked `aria-hidden`, `focus-visible:ring` on all interactive elements, `prefers-reduced-motion` support (both framer-motion and CSS), screen-reader-only utility class, focus management on tab change. Commit `f3f1e68`.
