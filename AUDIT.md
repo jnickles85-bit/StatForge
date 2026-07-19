@@ -190,7 +190,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 ### Phase 4 — Ship-quality desktop application
 
-1. Signed NSIS installer and controlled auto-update.
+1. ~~Signed NSIS installer and controlled auto-update.~~ — **deferred indefinitely July 19, 2026.** After researching code-signing requirements, the cert purchase (~$100–300/yr OV, more for EV) and recurring renewal/KYC overhead are not justified for the current sharing-with-friends distribution model. StatForge will ship as a plain zip for manual download/redownload, matching the CurseForge manual-update pattern every WoW player already accepts. Revisit only if (a) SmartScreen warnings drive users away from public distribution, or (b) seamless auto-update becomes a priority. The WoW addon itself (Lua/XML) never needed signing — this decision concerns only the Electron desktop companion .exe.
 2. ~~Crash/error diagnostics that remain local-first and opt-in.~~ — **completed July 19, 2026.** Opt-in error log captures React component errors, unhandled promise rejections, and app errors to a bounded localStorage ring buffer (last 50). `ErrorBoundary` wraps the app and shows a friendly reload fallback. Global `window.onerror` / `unhandledrejection` handlers wired at startup. The Diagnostics panel exposes the log with per-error expand/collapse, stack traces, clear-all, and per-error delete. 15 tests cover the ring buffer, opt-in toggle, error kinds, and graceful storage-failure handling. Local-first by design — no network calls, no PII.
 3. Offline-first icon/data cache status.
 4. Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels — partially resolved

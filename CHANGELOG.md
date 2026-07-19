@@ -5,6 +5,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Distribution — 2026-07-19
+- Decision: signed NSIS installer and controlled auto-update are **deferred indefinitely**. Code-signing certificate purchase rejected for now. The app + addon will ship as a plain zip for manual download/redownload, matching the CurseForge manual-update pattern every WoW player already accepts. The WoW addon itself (Lua/XML) never needed signing — this decision concerns only the Electron desktop companion .exe. Revisit only if SmartScreen warnings drive users away from public distribution or if seamless auto-update becomes a priority. Recorded in `AUDIT.md` Phase 4.1.
+
 ### Companion desktop app — 2026-07-19
 - Added a What-if planning mode to the companion app. Users can clone the current character into a sandbox, swap gear from the full item database, edit talents and level, and see side-by-side DPS/survival score deltas against the real loadout — all non-destructive, with scenario save/restore. No addon export-schema change was required.
 
