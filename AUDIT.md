@@ -134,11 +134,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Recommendation:** upgrade in staged branches: Electron/builder first, then lint stack, then Vite/Vitest, then React. Add Dependabot or Renovate with grouped updates and CI gates. Resolve module-format warnings explicitly.
 
-### M6. Electron hardening is baseline, not release-grade
+### M6. Electron hardening is baseline, not release-grade — resolved
 
-**Verified evidence:** isolation is enabled, but no permission-request handler, navigation/window-open guard, sandbox setting, or strict production CSP split is present. CSP currently allows `'unsafe-eval'` globally.
-
-**Recommendation:** disable unexpected navigation/window creation, deny permissions by default, enable renderer sandbox if preload compatibility permits, remove `'unsafe-eval'` in production, and verify remote content cannot acquire privileged bridge behavior.
+**Resolved July 18, 2026:** renderer sandbox enabled (preload is contextBridge-only, compatible), all production navigation blocked via `will-navigate`/`will-redirect` preventDefault, `setWindowOpenHandler` denies all popups unconditionally, `setPermissionRequestHandler` denies by default and allows notifications only, and the production CSP meta tag contains no `'unsafe-eval'`. The dead `window.location.origin` reference in the redirect handler (would crash in main process) was removed. Verified: 190/190 tests pass, lint clean, build clean (575 kB JS / 32 kB CSS), commit `dc2d4e6` on `master`.
 
 ### M7. Long-term optimizer architecture will strain the current component/state model
 
