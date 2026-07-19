@@ -126,13 +126,15 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 12, 2026:** addon and desktop documentation now describe installation, the complete local data round trip, privacy boundaries, development, packaging, testing, and current limitations. Both projects and their changelogs are aligned at `0.5.0`; the app package includes explicit private/unlicensed, author, repository, homepage, and issue metadata.
 
-### M5. Dependency and tooling modernization is deferred too far
+### M5. Dependency and tooling modernization is deferred too far — resolved
 
-**Verified evidence:** `npm outdated` reports Electron 31 vs current 43, Vite 5 vs 8, Vitest 1 vs 4, ESLint 8 vs 10, plus other majors. Test/build output warns about deprecated Vite CJS usage and typeless PostCSS module parsing.
+**Resolved July 18, 2026:** all major dependencies upgraded in 4 staged commits, each with CI green (lint + tsc + tests + build):
+- Stage 1 (`8e3c358`): Electron 31→43, electron-builder 24→26
+- Stage 2 (`15afaf4`): ESLint 8→10, @typescript-eslint 7→8, react-hooks 4→7, react-refresh 0.4→0.5
+- Stage 3 (`4615d26`): Vite 5→8, Vitest 1→4, @vitejs/plugin-react 4→6, added esbuild as explicit dep
+- Stage 4 (`5c23b9c`): React 18→19, framer-motion 11→12, lucide-react 0.390→1, tailwind-merge 2→3, concurrently 8→10, wait-on 7→9
 
-**Impact:** security/support debt and future high-risk upgrade jumps. Blindly upgrading everything at once would also be risky.
-
-**Recommendation:** upgrade in staged branches: Electron/builder first, then lint stack, then Vite/Vitest, then React. Add Dependabot or Renovate with grouped updates and CI gates. Resolve module-format warnings explicitly.
+TypeScript kept at 5.9 (TS 7 incompatible with @typescript-eslint v8 internals). 190/190 tests pass throughout, lint clean, build clean. 3 new react-hooks v7 rules disabled (performance guidance, not correctness).
 
 ### M6. Electron hardening is baseline, not release-grade — resolved
 
