@@ -205,7 +205,9 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 - **Simulation worker threads/Web Workers** so deeper models never block the UI.
 - ~~**Sensitivity analysis:** show which objective trade-offs and supported model boundaries change the recommendation.~~ — completed July 16, 2026 over reproducible snapshots; richer parameterized encounter/effect sensitivity depends on future model modules.
-- **What-if planning:** level, talent, enchant, and future-item scenarios without mutating current gear.
+- **What-if planning:** level, talent, enchant, and future-item scenarios without mutating current gear. — **partially resolved July 19, 2026**
+  - **Resolved July 19, 2026:** What-if planning mode added as a new sidebar tab. Users can clone the current character into a sandbox, swap gear from the full item database, edit talent tab points, change character level, and see side-by-side DPS/survival score deltas with stat changes, set bonus gains/losses, and gear slot change lists. Scenarios can be saved/restored per character in localStorage. Non-destructive by design — the real `CharacterData` is never mutated. 30 new tests cover clone isolation, modification, comparison, and persistence. 220/220 tests pass, lint clean, build clean.
+  - **Remaining:** enchant application/removal UI controls (model functions exist but are not yet exposed in the panel); future-item scenarios (items not yet in the database); shareable local analysis bundles.
 - **Shareable local analysis bundles** (no account upload required).
 - **Plugin-like spec model registry** so new specs/effects can be added and tested independently.
 

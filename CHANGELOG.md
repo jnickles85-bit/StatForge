@@ -5,6 +5,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-19
+- Added a What-if planning mode to the companion app. Users can clone the current character into a sandbox, swap gear from the full item database, edit talents and level, and see side-by-side DPS/survival score deltas against the real loadout — all non-destructive, with scenario save/restore. No addon export-schema change was required.
+
 ### Companion desktop app — 2026-07-18
 - Added a bounded Custom encounter duration to the companion app. The persisted whole-second value drives the same deterministic effect-uptime window in owned and Finder analysis, round-trips through reproducible snapshots, and does not infer rotations or additional encounter mechanics; no addon export-schema change was required.
 

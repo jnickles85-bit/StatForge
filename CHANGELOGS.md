@@ -12,16 +12,16 @@ This file is the cross-repository continuation index. It does not replace either
 | [`.hermes/plans/`](.hermes/plans/) | Actionable plans for upcoming milestones |
 | [`docs/MANUAL_TEST_MATRIX.md`](docs/MANUAL_TEST_MATRIX.md) | Live Classic-client checks that offline automation cannot certify |
 
-## Current checkpoint — July 18, 2026
+## Current checkpoint — July 19, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 190 tests across 26 files pass after adding a bounded Custom encounter duration shared by owned-item and Finder scoring. The 5–3,600-second whole-second value persists locally, round-trips through reproducible snapshots, and was exercised at 75 seconds in the standalone Electron renderer including bounds and reload restoration. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
-- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, Retribution Paladin, and Protection Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss/Custom effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, and five-lens deterministic sensitivity classification.
+- Desktop app: 220 tests across 27 files pass after adding What-if planning mode (Phase 5). The new sidebar tab clones the current character into a sandbox, supports gear swaps from the full item database, talent tab editing, level changes, and side-by-side DPS/survival score deltas with stat changes, set bonus gains/losses, and scenario save/restore. 30 new tests cover clone isolation, modification, comparison, and persistence. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
+- Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative Mage Arcane/Fire/Frost, Shadow Priest, Affliction Warlock, Elemental Shaman, Retribution Paladin, and Protection Paladin school modules, explicit Automatic/Solo/Dungeon-boss/Raid-boss/Custom effect windows, Pareto DPS/survival recommendation lenses, versioned reproducible analysis snapshots, five-lens deterministic sensitivity classification, and What-if planning mode.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Move to staged Electron hardening and dependency modernization. Add further class/spec modules only where exported evidence supports a conservative model; do not infer additional encounter mechanics from duration.
+Enchant editing UI for the What-if panel (model functions exist), then continue Phase 5 advanced differentiators (Web Workers, shareable analysis bundles, plugin-like spec model registry) or continue class/spec modules only where exported evidence supports a conservative model.
 
 Completed implementation plans retained for history:
 
