@@ -5,6 +5,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-20 (offline cache diagnostics)
+- Completed Phase 4.3 in the companion app: Data Diagnostics now exposes packaged item-data availability and exact icon-cache coverage, size, location, current-session hits/downloads/failures, refresh, and a confirmed clear action restricted to app-owned JPEG icons. The renderer uses narrow typed Electron IPC and never receives filesystem access. No addon export-schema change was required.
+
 ### Companion desktop app — 2026-07-20 (CI reproducibility)
 - Repaired the companion app's npm lockfile after dependency modernization omitted Electron Builder's Windows Squirrel/signing peer packages. Clean Node 22/npm 10 installation, 235 tests, lint, TypeScript/build, NSIS plus unpacked packaging, and packaged smoke now pass. No addon export-schema change was required.
 

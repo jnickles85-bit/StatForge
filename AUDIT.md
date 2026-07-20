@@ -7,7 +7,7 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining gaps are broader evidence-backed class/spec models, offline cache visibility, measured performance budgets, and the live-WoW release matrix.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining gaps are broader evidence-backed class/spec models, measured performance budgets, and the live-WoW release matrix.
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
@@ -194,7 +194,7 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 
 1. ~~Signed NSIS installer and controlled auto-update.~~ — **deferred indefinitely July 19, 2026.** After researching code-signing requirements, the cert purchase (~$100–300/yr OV, more for EV) and recurring renewal/KYC overhead are not justified for the current sharing-with-friends distribution model. StatForge will ship as a plain zip for manual download/redownload, matching the CurseForge manual-update pattern every WoW player already accepts. Revisit only if (a) SmartScreen warnings drive users away from public distribution, or (b) seamless auto-update becomes a priority. The WoW addon itself (Lua/XML) never needed signing — this decision concerns only the Electron desktop companion .exe.
 2. ~~Crash/error diagnostics that remain local-first and opt-in.~~ — **completed July 19, 2026.** Opt-in error log captures React component errors, unhandled promise rejections, and app errors to a bounded localStorage ring buffer (last 50). `ErrorBoundary` wraps the app and shows a friendly reload fallback. Global `window.onerror` / `unhandledrejection` handlers wired at startup. The Diagnostics panel exposes the log with per-error expand/collapse, stack traces, clear-all, and per-error delete. 15 tests cover the ring buffer, opt-in toggle, error kinds, and graceful storage-failure handling. Local-first by design — no network calls, no PII.
-3. Offline-first icon/data cache status.
+3. ~~Offline-first icon/data cache status.~~ — **completed July 20, 2026.** Data Diagnostics now reports packaged item-data availability plus exact application-owned icon-cache count, byte size, path, and current-session cache hits, downloads, and failures. Refresh and confirmed clearing use a narrow typed preload bridge and main-process IPC; the renderer receives no filesystem access. Clearing is restricted to regular JPEG files inside `userData/icons` and does not touch packaged item data. RED-GREEN tests cover inventory, counters, constrained clearing, IPC delegation, byte formatting, and honest user-facing summaries that do not claim network readiness.
 4. ~~Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels~~ — **completed July 19, 2026**
    - **Resolved July 18, 2026:** skip-to-content link, ARIA landmarks (header, nav, main), sidebar tab labels with `aria-current`, decorative icons marked `aria-hidden`, `focus-visible:ring` on all interactive elements, `prefers-reduced-motion` support (both framer-motion and CSS), screen-reader-only utility class, focus management on tab change. Commit `f3f1e68`.
    - **Resolved July 19, 2026:** aria-live regions for dynamic content (ImportPanel error/success, AnalysisSnapshotsPanel save/restore messages), `aria-label` on all icon-only buttons (What-if slot/enchant remove, level +/-, scenario delete; Diagnostics per-error delete), `aria-expanded` on FarmingLocationsPanel toggle buttons, decorative chevrons marked `aria-hidden`. Screen readers now announce import outcomes and snapshot operations.
@@ -220,7 +220,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-17_184001-custom-encounter-duration.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-20_111311-offline-cache-diagnostics.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
@@ -231,9 +231,8 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Offline-first icon/data cache status | The icon cache exists, but users cannot see cache coverage, size, location, failures, or offline readiness; this is the last dependency-free Phase 4 product gap |
-| 2 | Measure startup/load/render performance against an explicit budget | Code splitting reduced the main bundle, but measured traces should determine whether further splitting or virtualization is justified |
-| 3 | Continue deterministic class/spec modules only with evidence, then execute the live-WoW release matrix | Extend fidelity only where exported evidence supports a conservative model, and keep live-client certification separate from offline automation |
+| 1 | Measure startup/load/render performance against an explicit budget | Code splitting reduced the main bundle, but measured traces should determine whether further splitting or virtualization is justified |
+| 2 | Continue deterministic class/spec modules only with evidence, then execute the live-WoW release matrix | Extend fidelity only where exported evidence supports a conservative model, and keep live-client certification separate from offline automation |
 
 ## Bottom line
 
