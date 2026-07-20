@@ -5,6 +5,9 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ## Unreleased
 
+### Companion desktop app — 2026-07-20 (measured performance budgets)
+- Completed Phase 4.5 in the companion app: fixed Electron/render/data/Finder/memory budgets, a repeatable packaged-Windows multi-launch harness, and honest current-session Diagnostics reporting. Five measured isolated-profile launches passed every p95 budget; the Finder fixture measured 22.2 ms p95, so no speculative worker or virtualization was added. The harness also exposed and fixed packaged `file://` item-data resolution. No addon export-schema change was required.
+
 ### Companion desktop app — 2026-07-20 (offline cache diagnostics)
 - Completed Phase 4.3 in the companion app: Data Diagnostics now exposes packaged item-data availability and exact icon-cache coverage, size, location, current-session hits/downloads/failures, refresh, and a confirmed clear action restricted to app-owned JPEG icons. The renderer uses narrow typed Electron IPC and never receives filesystem access. No addon export-schema change was required.
 

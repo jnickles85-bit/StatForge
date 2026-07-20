@@ -15,13 +15,13 @@ This file is the cross-repository continuation index. It does not replace either
 ## Current checkpoint — July 20, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 244 tests pass after completing Phase 4.3 offline cache diagnostics, Phase 4.4 accessibility, Phase 4.2 crash/error diagnostics, and Phase 5 What-if planning mode. Data Diagnostics reports packaged item-data availability and exact icon-cache coverage, size, location, and current-session activity through narrow typed Electron IPC; confirmed clearing is constrained to app-owned JPEG icons. The July 19 dependency-modernization checkpoint exposed an out-of-sync npm lockfile in GitHub Actions; the omitted Electron Builder Windows Squirrel/signing peer packages were restored July 20. Clean Node 22/npm 10 installation, zero-warning lint, TypeScript/production build, NSIS plus unpacked packaging, and packaged smoke pass locally.
+- Desktop app: Phase 4.5 now has fixed performance budgets, a repeatable packaged-Windows harness, and an honest current-session Diagnostics card through narrow typed IPC. One discarded warm-up plus five isolated-profile launches passed every nearest-rank p95 budget; the full machine/method/sample record is in `StatForge-App/docs/performance-baseline.json`. The harness exposed and fixed packaged `file://` item-data URLs before recording the baseline. List virtualization and Web Workers were not added because bounded lists and a 22.2 ms Finder p95 provide no measured justification.
 - Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative spec modules, explicit encounter windows, Pareto recommendations, versioned reproducible analysis snapshots, five-lens sensitivity classification, What-if planning, crash/error diagnostics, and full accessibility.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
 ## Next milestone
 
-Phase 4.5 performance-budget measurement is the next dependency-free desktop milestone. Phase 5 advanced items (Web Workers, shareable analysis bundles, plugin-like spec model registry) are larger.
+Phase 4.5 performance-budget measurement is complete. The next release boundary is executing and recording the live-WoW manual matrix; later class/spec expansion remains evidence-gated.
 
 Completed implementation plans retained for history:
 
@@ -38,11 +38,12 @@ Latest completed implementation plans:
 - [`.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md`](.hermes/plans/2026-07-17_181741-protection-paladin-school-module.md)
 - [`.hermes/plans/2026-07-17_184001-custom-encounter-duration.md`](.hermes/plans/2026-07-17_184001-custom-encounter-duration.md)
 - [`.hermes/plans/2026-07-20_111311-offline-cache-diagnostics.md`](.hermes/plans/2026-07-20_111311-offline-cache-diagnostics.md)
+- [`.hermes/plans/2026-07-20_115725-performance-budgets.md`](.hermes/plans/2026-07-20_115725-performance-budgets.md)
 
 Next sequencing:
 
-1. Measure app startup/load/render performance against an explicit budget before considering more splitting or virtualization (Phase 4.5).
-2. Execute and record the live-WoW manual release matrix.
+1. Execute and record the live-WoW manual release matrix.
+2. Continue deterministic class/spec modules only where exported evidence supports a conservative model.
 
 ## Closure checklist for every milestone
 

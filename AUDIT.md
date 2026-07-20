@@ -7,7 +7,7 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining gaps are broader evidence-backed class/spec models, measured performance budgets, and the live-WoW release matrix.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining gaps are broader evidence-backed class/spec models and the live-WoW release matrix.
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
@@ -17,15 +17,15 @@ There are **no verified release-blocking build, lint, type-check, unit-test, Win
 |---|---|
 | App branch/status | `master`; npm lockfile reproducibility repair verified locally July 20, 2026 |
 | Addon branch/status | `main`; companion tracking records reconciled for the July 20 dependency-lock repair |
-| App tests | **235/235 passed**, 28/28 files |
-| App production build | **passed**, 2,301 modules; main JS 441.92 kB / 134.79 kB gzip |
+| App tests | **255/255 passed**, 33/33 files |
+| App production build | **passed**, 2,304 modules; main JS 442.36 kB / 134.89 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
 | Windows package | **passed** for NSIS installer and unpacked directory |
 | Packaged smoke | **passed**; packaged StatForge remained running for the scripted 8-second gate |
 | Native Electron custom-duration UI | **passed July 18** via the standalone renderer: Custom selection, 75-second entry, 5/3,600-second bounds, local persistence, and renderer reload restoration verified |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
-| Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
+| Production asset paths | **verified** relative for bundled assets and packaged item-data/provenance requests; the Phase 4.5 packaged harness caught and fixed root-absolute `file://` data URLs |
 | GitHub CI | App runs clean `npm ci`, data build, lint, tsc, tests, Windows packaging, and packaged smoke; the July 19 omitted Electron Builder peer-package lock entries were repaired July 20. Addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
 
 > Offline verification cannot replace live WoW validation. The addon shell, bank events, import dialog, and equip flow still need an in-game test matrix.
@@ -198,9 +198,10 @@ The highest-leverage strategy is **not** “copy Raidbots.” Build the best Har
 4. ~~Accessibility: keyboard navigation, focus states, reduced motion, contrast, screen-reader labels~~ — **completed July 19, 2026**
    - **Resolved July 18, 2026:** skip-to-content link, ARIA landmarks (header, nav, main), sidebar tab labels with `aria-current`, decorative icons marked `aria-hidden`, `focus-visible:ring` on all interactive elements, `prefers-reduced-motion` support (both framer-motion and CSS), screen-reader-only utility class, focus management on tab change. Commit `f3f1e68`.
    - **Resolved July 19, 2026:** aria-live regions for dynamic content (ImportPanel error/success, AnalysisSnapshotsPanel save/restore messages), `aria-label` on all icon-only buttons (What-if slot/enchant remove, level +/-, scenario delete; Diagnostics per-error delete), `aria-expanded` on FarmingLocationsPanel toggle buttons, decorative chevrons marked `aria-hidden`. Screen readers now announce import outcomes and snapshot operations.
-5. Performance budgets and list virtualization based on measured traces — partially resolved
+5. ~~Performance budgets and list virtualization based on measured traces~~ — **completed July 20, 2026**
    - **Resolved July 18, 2026:** code-split heavy panels (UpgradesPanel, FarmingLocationsPanel, DiagnosticsPanel) via `React.lazy` + `Suspense`. Main bundle reduced 29% (620→437 kB). Lazy chunks load on-demand. Commit `39cd055`.
-   - **Remaining:** list virtualization not needed (farming locations ~42 items, upgrade candidates bounded per slot); measure actual load/render traces against a budget; consider further splitting shared itemDatabase chunk if it grows.
+   - **Resolved July 20, 2026:** added fixed budgets and a repeatable packaged-Windows harness with one discarded warm-up and five isolated-profile launches. The recorded nearest-rank p95 values pass every budget: app-ready 36.89/1,500 ms, DOM-ready 296.07/3,000 ms, shell-ready 221.9/1,500 ms, item database 370.7/2,500 ms, representative full-database Finder 22.2/500 ms, and total Electron working set 378.82/500 MiB. `docs/performance-baseline.json` retains machine, method, all samples, medians, p95 values, budgets, and the explicit limitation that this is neither an OS cold-cache guarantee nor a universal hardware claim. Data Diagnostics exposes only actual current-session measurements through fixed typed IPC and labels missing metrics incomplete.
+   - The packaged harness exposed and fixed root-absolute item-data requests that failed under `file://`; public data now resolves beside the built index. No list virtualization or Web Worker was added because current lists are bounded and Finder p95 is 22.2 ms—there is no measured justification.
 6. ~~Harden the Electron development lifecycle against renderer-port drift and orphaned processes.~~ — completed July 16, 2026. Vite now refuses to move off port 5173, and the coupled launcher closes Electron when renderer startup fails; a regression test preserves the strict-port contract.
 
 ### Phase 5 — Optional advanced differentiators
@@ -220,7 +221,7 @@ Future work must use these repository records rather than relying on chat histor
 1. **`AUDIT.md`** — canonical improvement list and completion state across both repositories.
 2. **`CHANGELOGS.md`** — cross-repository index, current checkpoint, and next-action summary.
 3. **`CHANGELOG.md` in each repository** — completed work for that repository. App-only milestones must also receive a concise `Companion desktop app` entry here stating whether the addon schema changed.
-4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current completed plan is `2026-07-20_111311-offline-cache-diagnostics.md`.
+4. **`.hermes/plans/`** — actionable implementation plans for milestones. The current plan is `2026-07-20_115725-performance-budgets.md`.
 5. **`docs/MANUAL_TEST_MATRIX.md`** — live-WoW release evidence that offline tests cannot provide.
 
 When completing an audit item: update this file, update the affected changelog(s), run the repository gates, inspect the diff, commit a clean checkpoint, push it, and verify `HEAD == origin/<branch>` in both repositories. Do not mark a partially implemented model as fully simulated or live-client certified.
@@ -231,8 +232,8 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Measure startup/load/render performance against an explicit budget | Code splitting reduced the main bundle, but measured traces should determine whether further splitting or virtualization is justified |
-| 2 | Continue deterministic class/spec modules only with evidence, then execute the live-WoW release matrix | Extend fidelity only where exported evidence supports a conservative model, and keep live-client certification separate from offline automation |
+| 1 | Execute and record the live-WoW release matrix | Offline automation and packaged measurements are green, but Blizzard-client behavior remains the release boundary |
+| 2 | Continue deterministic class/spec modules only with evidence | Extend fidelity only where exported evidence supports a conservative model; retain explicit fallbacks elsewhere |
 
 ## Bottom line
 
