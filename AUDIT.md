@@ -7,18 +7,18 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 - **`StatForge`** (`main`) — a pure-Lua Classic Era addon that exports `StatForge-v1` character/gear JSON and imports `SFSETUP1` optimized loadouts.
 - **`StatForge-App`** (`master`) — an Electron + React + TypeScript desktop optimizer with a compact local item database, SavedVariables watcher, upgrade engine, Hardcore farming-risk UI, and addon setup export.
 
-**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining fidelity gaps are broader class/spec models, staged Electron/dependency hardening, and the live-WoW release matrix.
+**Overall assessment: strong prototype / early product, not yet state of the art.** The core bidirectional loop exists and the app's tested gear-combination logic is substantially better than a typical hobby optimizer. Recommendation fidelity now includes whole-loadout cap, enchant, deterministic set/effect, conservative talent-inferred school modules, explicit and custom encounter durations, Pareto DPS/survival tradeoff lenses, reproducible snapshots, and deterministic sensitivity classification, but it remains an optimizer rather than a combat simulator. The largest remaining gaps are broader evidence-backed class/spec models, offline cache visibility, measured performance budgets, and the live-WoW release matrix.
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
-## Verification snapshot — refreshed July 18, 2026
+## Verification snapshot — refreshed July 20, 2026
 
 | Check | Result |
 |---|---|
-| App branch/status | `master`; custom encounter-duration milestone verified July 18, 2026 |
-| Addon branch/status | `main`; companion tracking documentation and implementation plan updated for the July 18 custom-duration milestone |
-| App tests | **190/190 passed**, 26/26 files |
-| App production build | **passed**, 1,978 modules; JS 575.05 kB / 169.81 kB gzip |
+| App branch/status | `master`; npm lockfile reproducibility repair verified locally July 20, 2026 |
+| Addon branch/status | `main`; companion tracking records reconciled for the July 20 dependency-lock repair |
+| App tests | **235/235 passed**, 28/28 files |
+| App production build | **passed**, 2,301 modules; main JS 441.92 kB / 134.79 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
 | App lint | **passed** with zero warnings |
 | Windows package | **passed** for NSIS installer and unpacked directory |
@@ -26,7 +26,7 @@ There are **no verified release-blocking build, lint, type-check, unit-test, Win
 | Native Electron custom-duration UI | **passed July 18** via the standalone renderer: Custom selection, 75-second entry, 5/3,600-second bounds, local persistence, and renderer reload restoration verified |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
 | Production asset paths | **verified** relative (`base: './'`; generated `./assets/...`) |
-| GitHub CI | App runs data build + lint + tsc + tests + Windows packaging; addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
+| GitHub CI | App runs clean `npm ci`, data build, lint, tsc, tests, Windows packaging, and packaged smoke; the July 19 omitted Electron Builder peer-package lock entries were repaired July 20. Addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
 
 > Offline verification cannot replace live WoW validation. The addon shell, bank events, import dialog, and equip flow still need an in-game test matrix.
 
@@ -136,6 +136,8 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 TypeScript kept at 5.9 (TS 7 incompatible with @typescript-eslint v8 internals). 190/190 tests pass throughout, lint clean, build clean. 3 new react-hooks v7 rules disabled (performance guidance, not correctness).
 
+**Resolved July 20, 2026 (CI reproducibility follow-up):** GitHub Actions exposed that the regenerated npm lockfile referenced electron-builder 26's Windows Squirrel/signing peer packages without recording their package entries. Both Linux and Windows jobs stopped at `npm ci` before project gates. Regenerating the lockfile with Node 22/npm 10 and optional peers restored clean-install reproducibility; 235/235 tests, lint, TypeScript/build, NSIS plus unpacked packaging, and packaged smoke pass locally.
+
 ### M6. Electron hardening is baseline, not release-grade — resolved
 
 **Resolved July 18, 2026:** renderer sandbox enabled (preload is contextBridge-only, compatible), all production navigation blocked via `will-navigate`/`will-redirect` preventDefault, `setWindowOpenHandler` denies all popups unconditionally, `setPermissionRequestHandler` denies by default and allows notifications only, and the production CSP meta tag contains no `'unsafe-eval'`. The dead `window.location.origin` reference in the redirect handler (would crash in main process) was removed. Verified: 190/190 tests pass, lint clean, build clean (575 kB JS / 32 kB CSS), commit `dc2d4e6` on `master`.
@@ -229,9 +231,9 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Electron hardening and staged dependency modernization | Custom duration completes the planned deterministic encounter-window tranche; reduce security/support debt without a risky all-at-once upgrade |
-| 2 | Continue deterministic class/spec modules only with evidence | Extend the registry only where exported evidence supports another conservative model without pretending to be a full simulator |
-| 3 | Execute and record the live-WoW manual release matrix | Converts the existing repeatable checklist into release evidence |
+| 1 | Offline-first icon/data cache status | The icon cache exists, but users cannot see cache coverage, size, location, failures, or offline readiness; this is the last dependency-free Phase 4 product gap |
+| 2 | Measure startup/load/render performance against an explicit budget | Code splitting reduced the main bundle, but measured traces should determine whether further splitting or virtualization is justified |
+| 3 | Continue deterministic class/spec modules only with evidence, then execute the live-WoW release matrix | Extend fidelity only where exported evidence supports a conservative model, and keep live-client certification separate from offline automation |
 
 ## Bottom line
 

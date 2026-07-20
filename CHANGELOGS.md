@@ -12,10 +12,10 @@ This file is the cross-repository continuation index. It does not replace either
 | [`.hermes/plans/`](.hermes/plans/) | Actionable plans for upcoming milestones |
 | [`docs/MANUAL_TEST_MATRIX.md`](docs/MANUAL_TEST_MATRIX.md) | Live Classic-client checks that offline automation cannot certify |
 
-## Current checkpoint — July 19, 2026
+## Current checkpoint — July 20, 2026
 
 - Addon behavior harness: 11 deterministic tests.
-- Desktop app: 235 tests across 28 files pass after completing Phase 4.4 accessibility (aria-live regions, icon-only button labels, decorative icon aria-hidden), Phase 4.2 crash/error diagnostics, and Phase 5 What-if planning mode. Accessibility now covers skip link, ARIA landmarks, tab labels, focus-visible rings, prefers-reduced-motion, aria-live regions for import/snapshot messages, aria-label on all icon-only buttons, and aria-hidden on decorative icons. The opt-in error log captures React errors, unhandled promise rejections, and app errors to a bounded localStorage ring buffer (last 50), with an ErrorBoundary wrapping the app, global error handlers wired at startup, and a collapsible error-log section in the Diagnostics panel. The What-if sidebar tab clones the current character into a sandbox, supports gear swaps, enchant editing, talent editing, level changes, and side-by-side DPS/survival score deltas with scenario save/restore. Full lint, TypeScript/production build, and the addon behavior harness pass locally.
+- Desktop app: 235 tests across 28 files pass after completing Phase 4.4 accessibility, Phase 4.2 crash/error diagnostics, and Phase 5 What-if planning mode. The July 19 dependency-modernization checkpoint exposed an out-of-sync npm lockfile in GitHub Actions; the omitted Electron Builder Windows Squirrel/signing peer packages were restored July 20. Clean Node 22/npm 10 installation, zero-warning lint, TypeScript/production build, NSIS plus unpacked packaging, and packaged smoke pass locally. Accessibility now covers skip links, ARIA landmarks, tab labels, focus-visible rings, reduced motion, live regions, icon-only button labels, and hidden decorative icons. The opt-in bounded error log and non-destructive What-if sandbox remain local-first.
 - Completed optimization foundation: whole-loadout cap handling, enchant resolution, deterministic set thresholds, curated deterministic effects, declarative spec modules, explicit encounter windows, Pareto recommendations, versioned reproducible analysis snapshots, five-lens sensitivity classification, What-if planning, crash/error diagnostics, and full accessibility.
 - Current model boundary: this is not a combat simulator; nondeterministic procs, encounter mechanics beyond duration, unsupported talent tabs, and most class/spec rotations remain unmodeled or explicit fallbacks.
 
@@ -40,8 +40,9 @@ Latest completed implementation plans:
 
 Next sequencing:
 
-1. Harden Electron and modernize dependencies in staged branches.
-2. Execute and record the live-WoW manual release matrix.
+1. Add offline-first icon/data cache status (Phase 4.3).
+2. Measure app startup/load/render performance against an explicit budget before considering more splitting or virtualization (Phase 4.5).
+3. Execute and record the live-WoW manual release matrix.
 
 ## Closure checklist for every milestone
 
