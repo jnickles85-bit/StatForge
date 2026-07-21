@@ -4,12 +4,12 @@ Use this matrix after addon behavior changes and before a release. Offline Fenga
 
 ## Record
 
-- Addon commit/version:
-- WoW Classic Era build:
-- Character/realm:
-- Tester/date:
-- Result: PASS / FAIL
-- Notes or screenshots:
+- Addon revision/version: local 1.15.9 compatibility candidate based on `649b0cd6794d479a7eef20043ccfbe3ecf8b1145` / `0.5.0`
+- WoW Classic Era build: `1.15.9.68808`
+- Character/realm: Sonmage / Doomhowl
+- Tester/date: Mightie; Gohan preflight / 2026-07-21 CDT
+- Result: **PENDING LIVE EXECUTION**
+- Notes or screenshots: Offline Fengari suite passed 11/11. The client updated from 1.15.8 to 1.15.9 before execution, so the StatForge TOC compatibility target was advanced to `11509`; all eight deployed files then matched the repository by SHA-256. Existing SavedVariables confirm a Sonmage-Doomhowl bank cache and prior exports, but do not certify current live behavior. At the first 1.15.9 login, `/sf` opened StatForge, while AtlasLootClassic, Bartender4, Details, TradeSkillMaster, RXPGuides, and AskMrRobotClassic produced unrelated compatibility errors. Repeat the matrix with only StatForge enabled before attributing any Lua error to StatForge.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ Use this matrix after addon behavior changes and before a release. Offline Fenga
 
 | ID | Area | Steps | Expected result | Result/evidence |
 |---|---|---|---|---|
-| A1 | Load and UI lifecycle | Log in, run `/sf`, switch Export → Gear → Options, close with Escape, reopen from the minimap button. | One window is shown; tabs render without Lua errors; Escape and minimap toggle work; position persists after reopening. | |
+| A1 | Load and UI lifecycle | Log in, run `/sf`, switch Export → Gear → Options, close with Escape, reopen from the minimap button. | One window is shown; tabs render without Lua errors; Escape and minimap toggle work; position persists after reopening. | **PARTIAL:** `/sf` opened StatForge. Login contained errors from six other addons after the 1.15.9 client update. Repeat with only StatForge enabled, then complete tabs/Escape/minimap/persistence checks. |
 | A2 | Fresh export | Open Export, select **Export now**, then **Show / Copy JSON**. | Character identity and current gear are present; JSON is selectable; no Lua error appears. | |
 | A3 | Logout persistence | Change one equipped or bag item, run `/sf export`, then `/reload`. Inspect `StatForgeDB.exports` through the desktop importer. | The post-change snapshot is loaded and has a newer export timestamp. | |
 | A4 | Bank open cache | Open the bank, move one item between bank and bags, then open Export. | Bank count/content refreshes while the bank is open and bank freshness reports just now. | |
