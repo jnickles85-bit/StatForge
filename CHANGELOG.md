@@ -7,7 +7,8 @@ and remaining roadmap (covers both this repo and StatForge-App).
 
 ### WoW Classic Era 1.15.9 compatibility — 2026-07-21
 - Advanced the addon's interface target to `11509` for WoW Classic Era build `1.15.9.68808`. The offline Fengari suite remains green at 11/11, and the deployed addon files were verified byte-for-byte against the repository.
-- Began the live release matrix on Sonmage-Doomhowl. `/sf` opened StatForge; A1 remains partial until the UI lifecycle is repeated with incompatible third-party addons disabled. No export-schema change was made.
+- Executed the live release matrix on Sonmage-Doomhowl with only StatForge enabled. Nine of the twelve core checks now pass: UI lifecycle and position persistence, fresh export, logout persistence through the desktop importer, live and cached bank behavior, setup validation, wrong-enchant handling, closed-bank handling, and the four-category multi-slot equip summary.
+- Paused the matrix after A12 with an exact resume checkpoint in `docs/MANUAL_TEST_MATRIX.md`. A6 random-suffix desktop parsing, A8 exact enchanted-copy equip, and A11 combat lockdown remain before the core release gate can pass; A13–A14 also remain. No addon code or export-schema change was made by this evidence-only checkpoint.
 
 ### Companion desktop app — 2026-07-20 (measured performance budgets)
 - Completed Phase 4.5 in the companion app: fixed Electron/render/data/Finder/memory budgets, a repeatable packaged-Windows multi-launch harness, and honest current-session Diagnostics reporting. Five measured isolated-profile launches passed every p95 budget; the Finder fixture measured 22.2 ms p95, so no speculative worker or virtualization was added. The harness also exposed and fixed packaged `file://` item-data resolution. No addon export-schema change was required.

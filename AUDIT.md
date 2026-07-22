@@ -11,12 +11,12 @@ StatForge is a two-repository, local-first WoW Classic Hardcore companion:
 
 There are **no verified release-blocking build, lint, type-check, unit-test, Windows-package, packaged-smoke, or native-Electron failures** in the app. Live WoW behavior still requires its documented in-game release checks.
 
-## Verification snapshot — refreshed July 20, 2026
+## Verification snapshot — refreshed July 22, 2026
 
 | Check | Result |
 |---|---|
 | App branch/status | `master`; npm lockfile reproducibility repair verified locally July 20, 2026 |
-| Addon branch/status | `main`; companion tracking records reconciled for the July 20 dependency-lock repair |
+| Addon branch/status | `main`; Classic Era 1.15.9 compatibility code at `e4c28e49cb6e3b3b6a632ea7d90e431377f3ae23`; paused live-evidence checkpoint documented |
 | App tests | **255/255 passed**, 33/33 files |
 | App production build | **passed**, 2,304 modules; main JS 442.36 kB / 134.89 kB gzip |
 | TypeScript | **passed** both directly and as part of `npm run build` |
@@ -25,10 +25,11 @@ There are **no verified release-blocking build, lint, type-check, unit-test, Win
 | Packaged smoke | **passed**; packaged StatForge remained running for the scripted 8-second gate |
 | Native Electron custom-duration UI | **passed July 18** via the standalone renderer: Custom selection, 75-second entry, 5/3,600-second bounds, local persistence, and renderer reload restoration verified |
 | Addon luacheck | **not locally verifiable**: `luacheck` is not installed; GitHub workflow is configured |
+| Live Classic Era matrix | **paused after A12; 9/12 core checks passed** on Sonmage-Doomhowl with only StatForge enabled. A6 random-suffix desktop parsing, A8 exact enchanted-copy equip, and A11 combat lockdown remain; A13–A14 are pending. Exact evidence and resume state are in `docs/MANUAL_TEST_MATRIX.md` |
 | Production asset paths | **verified** relative for bundled assets and packaged item-data/provenance requests; the Phase 4.5 packaged harness caught and fixed root-absolute `file://` data URLs |
 | GitHub CI | App runs clean `npm ci`, data build, lint, tsc, tests, Windows packaging, and packaged smoke; the July 19 omitted Electron Builder peer-package lock entries were repaired July 20. Addon runs behavior tests + luacheck; local `.luacheckrc` discovery repaired July 15 |
 
-> Offline verification cannot replace live WoW validation. The addon shell, bank events, import dialog, and equip flow still need an in-game test matrix.
+> Offline verification cannot replace live WoW validation. The live matrix is partially complete and intentionally paused; the release boundary remains open until the remaining core checks pass.
 
 ---
 
@@ -102,7 +103,9 @@ StatForge has a credible niche rather than being a clone: **offline/local charac
 
 **Resolved July 15, 2026:** addon CI runs a Fengari harness with WoW API stubs and 11 deterministic behavior tests. Coverage now includes real item-link enchant/suffix fields, strict setup parsing, exact and wrong-enchant matching across equipped items, bags, and the closed-bank cache, combat-lockdown blocking, equip-summary decisions, empty-scan bank-cache preservation, JSON escaping, suffix serialization, and bank freshness. `docs/MANUAL_TEST_MATRIX.md` supplies a repeatable release gate for bank-event order, logout persistence, tooltip scanning, UI lifecycle, enchant-specific setup matching, and sequential equips.
 
-**Remaining boundary:** offline mocks do not certify Blizzard API behavior in the live Classic client. The manual matrix must be executed and evidence recorded for release candidates; this audit has not marked those in-game checks as passed.
+**Live progress July 21–22, 2026:** with only StatForge enabled on Classic Era 1.15.9, A1–A5, A7, A9, A10, and A12 passed with recorded evidence. This covers UI lifecycle/position persistence, export and desktop persistence, open/closed bank caching, strict setup import, wrong-enchant and closed-bank classification, and a four-category multi-slot equip summary.
+
+**Remaining boundary:** offline mocks still do not certify all Blizzard API behavior. Testing is intentionally paused after A12. A6 random-suffix desktop parsing, A8 exact enchanted-copy equip, and A11 combat lockdown remain required for the core release gate; A13–A14 are pending. The exact stopping state and resume instruction are recorded in `docs/MANUAL_TEST_MATRIX.md`; this audit does not claim live-client release certification.
 
 ## 🟡 Medium priority
 
@@ -232,7 +235,7 @@ When completing an audit item: update this file, update the affected changelog(s
 
 | Priority | Work | Why |
 |---|---|---|
-| 1 | Execute and record the live-WoW release matrix | Offline automation and packaged measurements are green, but Blizzard-client behavior remains the release boundary |
+| 1 | Resume and complete the live-WoW release matrix from the recorded A12 checkpoint | Nine of twelve core checks pass, but A6, A8, and A11 remain before Blizzard-client release certification |
 | 2 | Continue deterministic class/spec modules only with evidence | Extend fidelity only where exported evidence supports a conservative model; retain explicit fallbacks elsewhere |
 
 ## Bottom line
